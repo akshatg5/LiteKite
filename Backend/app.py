@@ -149,7 +149,7 @@ def quote():
     symbol = request.json.get("symbol", "").upper()
     if not symbol:
         return jsonify({"error": "Missing symbol"}), 400
-    
+    print("Looking up")
     stock_quote = lookup(symbol)
     if not stock_quote:
         return jsonify({"error": "Invalid symbol"}), 400
