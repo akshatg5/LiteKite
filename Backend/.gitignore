@@ -1,0 +1,17 @@
+# Virtual environment
+.venv/
+venv/
+
+# Byte-compiled files and caches
+__pycache__/
+*.pyc
+*.pyo
+
+# SQLite database files
+*.db
+
+# Environment variables
+.env
+
+# VSCode settings (if using VSCode)
+.vscode/
