@@ -8,17 +8,19 @@ import { useToast } from "@/hooks/use-toast"
 const TradeForm = ({ action } : {action : any}) => {
   const [symbol, setSymbol] = useState('');
   const [shares, setShares] = useState('');
+  const [loading,setLoading] = useState(false)
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e:any) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/api/${action.toLowerCase()}`, {
+      setLoading(true)
+      const response = await fetch(`http://127.0.0.1:5000/api/${action.toLowerCase()}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `${localStorage.getItem('token')}`
         },
         body: JSON.stringify({ symbol, shares: parseInt(shares) })
       });
@@ -35,6 +37,9 @@ const TradeForm = ({ action } : {action : any}) => {
         description: error.message,
         variant: "destructive",
       });
+    }
+    finally {
+      setLoading(false)
     }
   };
 
@@ -58,7 +63,7 @@ const TradeForm = ({ action } : {action : any}) => {
             onChange={(e) => setShares(e.target.value)}
             min="1"
           />
-          <Button type="submit" className="w-full">{action}</Button>
+          <Button type="submit" className="w-full">{loading ? "Loading...": action}</Button>
         </form>
       </CardContent>
     </Card>

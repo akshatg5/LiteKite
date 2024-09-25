@@ -50,7 +50,7 @@ def after_request(response):
 
 
 @app.route("/", methods=["GET"])
-def serverChecl():
+def serverCheck():
     """Server check."""
     return jsonify("Server check")
 
@@ -83,6 +83,15 @@ def index():
         stocks_list.append(stock_dict)
 
     return jsonify({"stocks": stocks_list, "cash": cash, "total": total})
+
+@app.route("/api/balance",methods=["GET"])
+@jwt_required()
+def balance() : 
+    """Get the current cash balance of the user"""
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    balance = user.cash
+    return jsonify({"balance" : balance})
 
 @app.route("/api/buy", methods=["POST"])
 @jwt_required()
@@ -143,7 +152,6 @@ def login():
     return jsonify(access_token=access_token)
 
 @app.route("/api/quote", methods=["POST"])
-@jwt_required()
 def quote():
     """Get stock quote."""
     symbol = request.json.get("symbol", "").upper()
