@@ -11,6 +11,7 @@ import History from './pages/History';
 import GetQuote from './pages/Quote';
 import { ThemeProvider } from './components/theme-provider';
 import LandingPage from './pages/LandingPage';
+import { Analytics } from "@vercel/analytics/react"
 
 const ProtectedRoute = ({ children } : {children : React.ReactNode}) => {
   const { isAuthenticated } = useAuth();
@@ -22,6 +23,7 @@ const App = () => {
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          <Analytics />
           <div className="min-h-screen bg-background text-foreground">
            <Navbar /> 
             <main className="container mx-auto">
