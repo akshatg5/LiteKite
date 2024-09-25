@@ -6,3 +6,4 @@ Werkzeug
 python-dotenv
 pytz
 requests
+dotenv
