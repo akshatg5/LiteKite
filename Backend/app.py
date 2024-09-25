@@ -13,8 +13,8 @@ from helpers import lookup, usd
 
 app = Flask(__name__)
 CORS(app)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///new_finance.db'
+DATABASE_URI = os.getenv('DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -214,6 +214,3 @@ def sell():
     db.session.commit()
 
     return jsonify({"message": "Stock sold successfully"})
-
-if __name__ == "__main__":
-    app.run()
