@@ -38,7 +38,7 @@ class Transaction(db.Model):
     shares = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
     type = db.Column(db.String(4), nullable=False)
-    time = db.Column(db.DateTime, default=datetime.utcnow)
+    time = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
 
 @app.after_request
 def after_request(response):
@@ -48,12 +48,10 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
 @app.route("/", methods=["GET"])
 def serverCheck():
     """Server check."""
     return jsonify("Server check")
-
 
 @app.route("/api/portfolio")
 @jwt_required()
@@ -64,7 +62,7 @@ def index():
     stocks = db.session.query(Transaction.ticker, Transaction.name, Transaction.price, 
                               db.func.sum(Transaction.shares).label('totalshares'))\
         .filter_by(user_id=user_id)\
-        .group_by(Transaction.ticker)\
+        .group_by(Transaction.ticker, Transaction.name, Transaction.price)\
         .all()
     
     user = User.query.get(user_id)
@@ -84,14 +82,14 @@ def index():
 
     return jsonify({"stocks": stocks_list, "cash": cash, "total": total})
 
-@app.route("/api/balance",methods=["GET"])
+@app.route("/api/balance", methods=["GET"])
 @jwt_required()
-def balance() : 
+def balance():
     """Get the current cash balance of the user"""
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
     balance = user.cash
-    return jsonify({"balance" : balance})
+    return jsonify({"balance": balance})
 
 @app.route("/api/buy", methods=["POST"])
 @jwt_required()
@@ -214,3 +212,6 @@ def sell():
     db.session.commit()
 
     return jsonify({"message": "Stock sold successfully"})
+
+if __name__ == "__main__":
+    app.run()
