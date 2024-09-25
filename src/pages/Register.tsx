@@ -10,6 +10,7 @@ export const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading,setLoading] = useState(false)
     const { register } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
@@ -25,6 +26,7 @@ export const Register = () => {
         return;
       }
       try {
+        setLoading(true)
         await register(username, password);
         navigate('/login');
         toast({
@@ -37,6 +39,8 @@ export const Register = () => {
           description: error.message,
           variant: "destructive",
         });
+      } finally {
+        setLoading(false)
       }
     };
   
@@ -65,7 +69,7 @@ export const Register = () => {
               value={confirmPassword}
               onChange={(e:any) => setConfirmPassword(e.target.value)}
             />
-            <Button type="submit" className="w-full">Register</Button>
+            <Button type="submit" className="w-full">{loading ? 'Loading...' : "Register"}</Button>
           </form>
         <CardDescription className="text-center text-md mt-4">Already have an account? <Link className="underline font-semibold" to={'/login'}>Login</Link></CardDescription>
         </CardContent>

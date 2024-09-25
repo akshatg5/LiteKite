@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 export const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading,setLoading] = useState(false)
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -16,6 +17,7 @@ export const Login = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
+      setLoading(true)
       await login(username, password);
       navigate("/portfolio");
     } catch (error: any) {
@@ -32,6 +34,8 @@ export const Login = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -55,7 +59,7 @@ export const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <Button type="submit" className="w-full">
-            Login
+            {loading ? 'Loading...' : "Login"}
           </Button>
         </form>
         <CardDescription className="text-center text-md mt-4">Don't have an account? <Link className="underline font-semibold" to={'/register'}>Register</Link></CardDescription>
