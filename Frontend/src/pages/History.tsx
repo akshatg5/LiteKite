@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDownIcon, ArrowUpIcon, Badge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Transaction {
@@ -43,7 +42,7 @@ const History: React.FC = () => {
   }, []);
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto mt-5">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">
           Transaction History

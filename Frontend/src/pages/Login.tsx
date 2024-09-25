@@ -17,7 +17,7 @@ export const Login = () => {
     e.preventDefault();
     try {
       await login(username, password);
-      navigate("/");
+      navigate("/portfolio");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -28,7 +28,7 @@ export const Login = () => {
   };
 
   return (
-    <Card className="max-w-md mx-auto">
+    <Card className="max-w-md mx-auto mt-5">
       <CardHeader>
         <CardTitle>Login</CardTitle>
       </CardHeader>

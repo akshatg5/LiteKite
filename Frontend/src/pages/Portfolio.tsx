@@ -3,10 +3,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Portfolio = () => {
   const [portfolio, setPortfolio] = useState<{ stocks: any[]; cash: number; total: number } | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate()
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
@@ -18,6 +20,9 @@ const Portfolio = () => {
         });
         setPortfolio(response.data);
       } catch (error: any) {
+        if (error.status == 401) {
+          navigate('/login')
+        }
         if (error.response) {
           console.error('Error response:', error.response.data);
         } else {
@@ -37,7 +42,7 @@ const Portfolio = () => {
   if (!portfolio) return <div>Loading...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-5">
       <Card>
         <CardHeader>
           <CardTitle>Portfolio Overview</CardTitle>

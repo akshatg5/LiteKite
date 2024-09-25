@@ -1,53 +1,41 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
-import { useTheme } from "@/components/theme-provider"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from './theme-provider';
 
 const Navbar = () => {
-  const { isAuthenticated, logout } = useAuth();
-  //@ts-ignore
-  const { theme,setTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+  const showBar = location.pathname !== '/';
+
+  if (!showBar) {
+    return null;
+  }
 
   return (
-    <nav className="bg-secondary mb-4">
-      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">Finance App</Link>
-        {isAuthenticated && (
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="text-sm font-medium">Portfolio</Link>
-            <Link to="/buy" className="text-sm font-medium">Buy</Link>
-            <Link to="/sell" className="text-sm font-medium">Sell</Link>
-            <Link to="/history" className="text-sm font-medium">History</Link>
-            <Button variant="outline" size="sm" onClick={logout}>Logout</Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  System
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+    <nav className="bg-transparent border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Link to="/" className="text-xl font-bold">LiteKite</Link>
           </div>
-        )}
+          <div className="flex items-center">
+            <Link to="/portfolio" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Portfolio</Link>
+            <Link to="/buy" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Buy</Link>
+            <Link to="/sell" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Sell</Link>
+            <Link to="/history" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">History</Link>
+            <Link to="/quote" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Quote</Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+            >
+              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </div>
+        </div>
       </div>
     </nav>
   );
