@@ -24,7 +24,7 @@ const TradeForm = ({ action }: { action: any }) => {
     const getBalance = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://127.0.0.1:5000/api/balance", {
+        const res = await axios.get("https://litekitebackend.vercel.app/api/balance", {
           headers: {
             Authorization: token,
           },
@@ -48,7 +48,7 @@ const TradeForm = ({ action }: { action: any }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `http://127.0.0.1:5000/api/${action.toLowerCase()}`,
+        `https://litekitebackend.vercel.app/api/${action.toLowerCase()}`,
         { symbol, shares: parseInt(shares) },
         {
           headers: {
@@ -61,7 +61,7 @@ const TradeForm = ({ action }: { action: any }) => {
         title: "Success",
         description: response.data.message,
       });
-      navigate("/");
+      navigate("/portfolio");
     } catch (error: any) {
       toast({
         title: "Error",

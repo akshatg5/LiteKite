@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/login", { username, password });
+      const res = await axios.post("https://litekitebackend.vercel.app/api/login", { username, password });
       const accessToken = res.data.access_token;
       setToken(accessToken);
       setIsAuthenticated(true);
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (username: string, password: string) => {
     try {
-      await axios.post("http://127.0.0.1:5000/api/register", { username, password });
+      await axios.post("https://litekitebackend.vercel.app/api/register", { username, password });
     } catch (error) {
       console.error("Error registering:", error);
       throw error;

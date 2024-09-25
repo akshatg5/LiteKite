@@ -28,7 +28,7 @@ const History: React.FC = () => {
     console.log(token);
     const fetchTransactionHistory = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/api/history", {
+        const response = await axios.get("https://litekitebackend.vercel.app/api/history", {
           headers: {
             Authorization: token,
           },

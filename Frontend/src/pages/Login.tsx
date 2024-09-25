@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 export const Login = () => {
@@ -19,6 +19,14 @@ export const Login = () => {
       await login(username, password);
       navigate("/portfolio");
     } catch (error: any) {
+      console.log(error)
+      if (error.status == 401) {
+        toast({
+          title: "Error",
+          description: "Invalid username or password!",
+          variant: "destructive",
+        });
+      }
       toast({
         title: "Error",
         description: error.message,
@@ -50,6 +58,7 @@ export const Login = () => {
             Login
           </Button>
         </form>
+        <CardDescription className="text-center text-md mt-4">Don't have an account? <Link className="underline font-semibold" to={'/register'}>Register</Link></CardDescription>
       </CardContent>
     </Card>
   );

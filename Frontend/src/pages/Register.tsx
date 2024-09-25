@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 
 export const Register = () => {
@@ -41,7 +41,7 @@ export const Register = () => {
     };
   
     return (
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto mt-6">
         <CardHeader>
           <CardTitle>Register</CardTitle>
         </CardHeader>
@@ -67,6 +67,7 @@ export const Register = () => {
             />
             <Button type="submit" className="w-full">Register</Button>
           </form>
+        <CardDescription className="text-center text-md mt-4">Already have an account? <Link className="underline font-semibold" to={'/login'}>Login</Link></CardDescription>
         </CardContent>
       </Card>
     );
