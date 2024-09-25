@@ -1,15 +1,17 @@
 # helpers.py
 import csv
+import os
 import datetime
 import pytz
 import requests
 import subprocess
 import urllib
 import uuid
+from dotenv import load_dotenv
 
 from flask import redirect, render_template, session
 from functools import wraps
-
+load_dotenv()
 
 def apology(message, code=400):
     """Render message as an apology to user."""
@@ -73,7 +75,7 @@ def login_required(f):
 #     except (requests.RequestException, ValueError, KeyError, IndexError):
 #         return None
 
-FINNHUB_API_KEY = "crpiin1r01qsek0fs6igcrpiin1r01qsek0fs6j0"
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
 
 def lookup(symbol):
     """Look up stock quote for symbol using Finnhub."""
