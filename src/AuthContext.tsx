@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import url from "./lib/url";
 
 interface AuthContextType {
   isAuthenticated: boolean; // Corrected type to boolean
@@ -25,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     try {
-      const res = await axios.post("https://litekitebackend.vercel.app/api/login", { username, password });
+      const res = await axios.post(`${url}/login`, { username, password });
       const accessToken = res.data.access_token;
       setToken(accessToken);
       setIsAuthenticated(true);
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (username: string, password: string) => {
     try {
-      await axios.post("https://litekitebackend.vercel.app/api/register", { username, password });
+      await axios.post(`${url}/register`, { username, password });
     } catch (error) {
       console.error("Error registering:", error);
       throw error;

@@ -4,23 +4,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import url from '@/lib/url';
 
 const Portfolio = () => {
   const [portfolio, setPortfolio] = useState<{ stocks: any[]; cash: number; total: number } | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate()
+
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('https://litekitebackend.vercel.app/api/portfolio', {
+        const response = await axios.get(`${url}/portfolio`, {
           headers: {
             Authorization: token,
           },
         });
         setPortfolio(response.data);
       } catch (error: any) {
-        if (error.status == 401) {
+        if (error.response && error.response.status === 401) {
           navigate('/login')
         }
         if (error.response) {
@@ -37,7 +39,13 @@ const Portfolio = () => {
     };
   
     fetchPortfolio();
-  }, [toast]);
+  }, [toast, navigate]);
+
+  const getPnlClass = (value:number) => {
+    if (value > 0) return 'text-green-500';
+    if (value < 0) return 'text-red-500';
+    return 'text-gray-500'
+  }
 
   if (!portfolio) return <div>Loading...</div>;
 
@@ -51,26 +59,32 @@ const Portfolio = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Symbol</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Shares</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Total Value</TableHead>
+                <TableHead>Instrument</TableHead>
+                <TableHead>Qty.</TableHead>
+                <TableHead>Avg. Cost</TableHead>
+                <TableHead>LTP</TableHead>
+                <TableHead>Cur. Value</TableHead>
+                <TableHead>P&L</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              { portfolio && portfolio.stocks?.map((stock) => (
-                <TableRow key={stock.ticker}>
+              {portfolio.stocks.map((stock) => {
+                const pnl = stock.current_value - (stock.avg_purcase_price * stock.totalshares);
+                return (
+                  <TableRow key={stock.ticker}>
                   <TableCell className="font-medium">{stock.ticker}</TableCell>
-                  <TableCell>{stock.name}</TableCell>
                   <TableCell>{stock.totalshares}</TableCell>
-                  <TableCell>${stock.price.toFixed(2)}</TableCell>
-                  <TableCell>${(stock.price * stock.totalshares).toFixed(2)}</TableCell>
+                  <TableCell>${stock.avg_purcase_price.toFixed(2)}</TableCell>
+                  <TableCell>${stock.current_price.toFixed(2)}</TableCell>
+                  <TableCell>${stock.current_value.toFixed(2)}</TableCell>
+                  <TableCell className={getPnlClass(pnl)}>${pnl.toFixed(2)}</TableCell>
                 </TableRow>
-              ))}
+                )
+                }
+              )}
             </TableBody>
           </Table>
-              {portfolio.stocks.length == 0 && <div className='flex justify-center items-center'>No stocks traded yet!</div>}
+          {portfolio.stocks.length === 0 && <div className='flex justify-center items-center'>No stocks traded yet!</div>}
         </CardContent>
       </Card>
       <Card>
@@ -78,8 +92,8 @@ const Portfolio = () => {
           <CardTitle>Account Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>Cash Balance: ${portfolio?.cash.toFixed(2)}</p>
-          <p>Total Portfolio Value: ${portfolio?.total.toFixed(2)}</p>
+          <p>Cash Balance: ${portfolio.cash.toFixed(2)}</p>
+          <p>Total Portfolio Value: ${portfolio.total.toFixed(2)}</p>
         </CardContent>
       </Card>
     </div>

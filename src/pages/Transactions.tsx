@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import url from '@/lib/url';
 
 interface Transsactions {
     type : any;
@@ -18,7 +19,7 @@ const Transactions = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch('https://litekitebackend.vercel.app/api/history', {
+        const response = await fetch(`${url}/history`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },

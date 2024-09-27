@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import url from '@/lib/url';
 
 const GetQuote: React.FC = () => {
   const [symbol, setSymbol] = useState('');
@@ -18,7 +19,7 @@ const GetQuote: React.FC = () => {
       }
   
       const res = await axios.post(
-        'https://litekitebackend.vercel.app/api/quote',
+        `${url}/quote`,
         { symbol },
         {
           headers: {

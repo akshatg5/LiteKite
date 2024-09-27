@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import url from "@/lib/url";
 
 interface Transaction {
   type: string;
@@ -28,7 +29,7 @@ const History: React.FC = () => {
     console.log(token);
     const fetchTransactionHistory = async () => {
       try {
-        const response = await axios.get("https://litekitebackend.vercel.app/api/history", {
+        const response = await axios.get(`${url}/history`, {
           headers: {
             Authorization: token,
           },

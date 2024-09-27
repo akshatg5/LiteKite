@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+import url from "@/lib/url";
 
 const TradeForm = ({ action }: { action: any }) => {
   const [symbol, setSymbol] = useState("");
@@ -24,7 +25,7 @@ const TradeForm = ({ action }: { action: any }) => {
     const getBalance = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("https://litekitebackend.vercel.app/api/balance", {
+        const res = await axios.get(`${url}/balance`, {
           headers: {
             Authorization: token,
           },
@@ -48,7 +49,7 @@ const TradeForm = ({ action }: { action: any }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `https://litekitebackend.vercel.app/api/${action.toLowerCase()}`,
+        `${url}/${action.toLowerCase()}`,
         { symbol, shares: parseInt(shares) },
         {
           headers: {
