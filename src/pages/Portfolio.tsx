@@ -47,7 +47,13 @@ const Portfolio = () => {
     return 'text-gray-500'
   }
 
-  if (!portfolio) return <div>Loading...</div>;
+  const calculateNetChange = (currentValue:number,avg_purcase_price:number,totalshares : number) => {
+    const purchaseValue = totalshares * avg_purcase_price;
+    const changePercent = ((currentValue - purchaseValue) / purchaseValue) * 100
+    return changePercent
+  }
+
+  if (!portfolio) return <div className='flex justify-center items-center min-h-screen min-w-screen mx-auto'>Loading...</div>;
 
   return (
     <div className="space-y-6 p-5">
@@ -65,11 +71,13 @@ const Portfolio = () => {
                 <TableHead>LTP</TableHead>
                 <TableHead>Cur. Value</TableHead>
                 <TableHead>P&L</TableHead>
+                <TableHead>Net Chg.</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {portfolio.stocks.map((stock) => {
                 const pnl = stock.current_value - (stock.avg_purcase_price * stock.totalshares);
+                const netPercentChange = calculateNetChange(stock.current_value,stock.avg_purcase_price,stock.totalshares)
                 return (
                   <TableRow key={stock.ticker}>
                   <TableCell className="font-medium">{stock.ticker}</TableCell>
@@ -78,6 +86,7 @@ const Portfolio = () => {
                   <TableCell>${stock.current_price.toFixed(2)}</TableCell>
                   <TableCell>${stock.current_value.toFixed(2)}</TableCell>
                   <TableCell className={getPnlClass(pnl)}>${pnl.toFixed(2)}</TableCell>
+                  <TableCell className={getPnlClass(netPercentChange)}>{netPercentChange.toFixed(2)}%</TableCell>
                 </TableRow>
                 )
                 }
@@ -92,7 +101,7 @@ const Portfolio = () => {
           <CardTitle>Account Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>Cash Balance: ${portfolio.cash.toFixed(2)}</p>
+          <p>Cash Balance:<span className='font-semibold'>{" "}${portfolio.cash.toFixed(2)}</span></p>
           <p>Total Portfolio Value: ${portfolio.total.toFixed(2)}</p>
         </CardContent>
       </Card>
