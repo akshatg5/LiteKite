@@ -20,6 +20,8 @@ const ProtectedRoute = ({ children } : {children : React.ReactNode}) => {
 };
 
 const App = () => {
+  const env = import.meta.env.ENV
+  console.log(env)
   return (
     <ThemeProvider>
       <AuthProvider>

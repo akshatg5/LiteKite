@@ -20,12 +20,12 @@ const Navbar = () => {
             <Link to="/" className="text-xl font-bold">LiteKite</Link>
           </div>
           <div className="flex items-center">
-            <Link to="/portfolio" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Portfolio</Link>
-            <Link to="/buy" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Buy</Link>
-            <Link to="/sell" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Sell</Link>
-            <Link to="/history" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">History</Link>
-            <Link to="/quote" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Quote</Link>
-            <Link to="/profile" className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent">Profile</Link>
+            <Link to="/portfolio" className="text-sm font-medium max-sm:text-sm px-3 py-2 rounded-md hover:bg-accent">Portfolio</Link>
+            <Link to="/buy" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Buy</Link>
+            <Link to="/sell" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Sell</Link>
+            <Link to="/history" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">History</Link>
+            <Link to="/quote" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Quote</Link>
+            <Link to="/profile" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Profile</Link>
             <Button
               variant="ghost"
               size="icon"

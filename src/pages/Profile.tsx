@@ -99,41 +99,41 @@ const Profile = () => {
             Username: {data.username}
           </CardTitle>
           <CardDescription className="text-xl font-semibold">
-            Balance: ${data.cash}
+            Balance: ${data.cash.toFixed(2)}
           </CardDescription>
           <CardDescription className="text-xl font-semibold">
             {data.nationality ? (
               <p>Nationality: {data.nationality}</p>
             ) : (
               <div className="my-4">
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => setDialogOpen(true)}>
-                    Select Nationality
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Select a Nationality</DialogTitle>
-                    <DialogDescription>
-                      Add your nationality here!
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex flex-col gap-4">
-                    <select
-                      value={nationality}
-                      onChange={(e) => setNationality(e.target.value)}
-                      className="p-2 border rounded"
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => setDialogOpen(true)}>
+                      Select Nationality
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Select a Nationality</DialogTitle>
+                      <DialogDescription>
+                        Add your nationality here!
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4">
+                      <select
+                        value={nationality}
+                        onChange={(e) => setNationality(e.target.value)}
+                        className="p-2 border rounded"
                       >
-                      <option value="">Select...</option>
-                      <option value="USA">USA</option>
-                      <option value="India">India</option>
-                    </select>
-                    <Button onClick={updateNationality}>Save</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-                      </div>
+                        <option value="">Select...</option>
+                        <option value="USA">USA</option>
+                        <option value="India">India</option>
+                      </select>
+                      <Button onClick={updateNationality}>Save</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             )}
           </CardDescription>
         </Card>
