@@ -24,8 +24,6 @@ import url from "@/lib/url";
 
 
 import axios from 'axios';
-import { Button } from "./ui/button";
-import { Dialog } from "./ui/dialog";
 import BuyDialog from "./BuyDialog";
 
 export const fetchStockData = async (ticker: string) => {

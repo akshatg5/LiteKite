@@ -20,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { Check, ChevronsUpDown} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -42,6 +42,7 @@ const Portfolio = () => {
     cash: number;
     total: number;
   } | null>(null);
+  //@ts-ignore
   const [symbol, setSymbol] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState("AAPL");

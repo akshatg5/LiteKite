@@ -41,10 +41,6 @@ const TradeForm = ({ action }: { action: "Buy" | "Sell" }) => {
   const navigate = useNavigate()
   const { toast } = useToast()
 
-  const isValidStock = (symbol : string) => {
-    return sp500stocks.some((stock) => stock.symbol === symbol)
-  }
-
   const handleStockSearch = (input : string) => {
     const filtered = sp500stocks.filter(
       (stock) => stock.symbol.toLowerCase().includes(input.toLowerCase()) || stock.name.toLowerCase().includes(input.toLowerCase())
