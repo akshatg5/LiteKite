@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import {Table,TableBody,TableCaption,TableCell,TableHead,TableHeader,TableRow,} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
 
@@ -26,7 +18,6 @@ const History: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log(token);
     const fetchTransactionHistory = async () => {
       try {
         const response = await axios.get(`${url}/history`, {

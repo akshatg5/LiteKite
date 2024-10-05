@@ -1,117 +1,231 @@
-import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import url from "@/lib/url";
-import { InteractiveStockChart } from "@/components/Graph";
-import { Button } from "@/components/ui/button";
-import sp500stocks from "@/lib/Stocks.json";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown} from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow,} from "@/components/ui/table"
+import { useToast } from "@/hooks/use-toast"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import url from "@/lib/url"
+import { InteractiveStockChart } from "@/components/Graph"
+import { Button } from "@/components/ui/button"
+import sp500stocks from "@/lib/Stocks.json"
+import {Popover,PopoverContent,PopoverTrigger,} from "@/components/ui/popover"
+import { Check, ChevronsUpDown } from "lucide-react"
+import {Command,CommandEmpty,CommandGroup,CommandInput,CommandItem,CommandList,} from "@/components/ui/command"
+import { cn } from "@/lib/utils"
+import AnalyzeDialog from "@/components/AnalayzeDialog"
 
 interface Stock {
-  symbol: string;
-  name: string;
+  symbol: string
+  name: string
+}
+
+interface PortfolioStock {
+  ticker: string
+  totalshares: number
+  avg_purcase_price: number
+  current_price: number
+  current_value: number
+}
+
+interface Portfolio {
+  stocks: PortfolioStock[]
+  cash: number
+  total: number
 }
 
 const Portfolio = () => {
-  const [portfolio, setPortfolio] = useState<{
-    stocks: any[];
-    cash: number;
-    total: number;
-  } | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
   //@ts-ignore
-  const [symbol, setSymbol] = useState("");
-  const [open, setOpen] = useState(false);
-  const [selectedStock, setSelectedStock] = useState("AAPL");
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [filteredStocks, setFilteredStocks] = useState<Stock[]>([]);
+  const [symbol, setSymbol] = useState("")
+  const [open, setOpen] = useState(false)
+  const [selectedStock, setSelectedStock] = useState("AAPL")
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const [filteredStocks, setFilteredStocks] = useState<Stock[]>([])
 
   const handleStockSearch = (input: string) => {
     const filtered = sp500stocks.filter(
       (stock) =>
         stock.symbol.toLowerCase().includes(input.toLowerCase()) ||
         stock.name.toLowerCase().includes(input.toLowerCase())
-    );
-    setFilteredStocks(filtered);
-  };
+    )
+    setFilteredStocks(filtered)
+  }
 
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token")
         const response = await axios.get(`${url}/portfolio`, {
           headers: {
             Authorization: token,
           },
-        });
-        setPortfolio(response.data);
+        })
+        setPortfolio(response.data)
       } catch (error: any) {
         if (error.response && error.response.status === 401) {
-          navigate("/login");
+          navigate("/login")
         }
         if (error.response) {
-          console.error("Error response:", error.response.data);
+          console.error("Error response:", error.response.data)
         } else {
-          console.error("Error:", error);
+          console.error("Error:", error)
         }
         toast({
           title: "Error",
           description: "Failed to fetch portfolio. Please try again.",
           variant: "destructive",
-        });
+        })
       }
-    };
+    }
 
-    fetchPortfolio();
-  }, [toast, navigate]);
+    fetchPortfolio()
+  }, [toast, navigate])
 
   const getPnlClass = (value: number) => {
-    if (value > 0) return "text-green-500";
-    if (value < 0) return "text-red-500";
-    return "text-gray-500";
-  };
+    if (value > 0) return "text-green-500"
+    if (value < 0) return "text-red-500"
+    return "text-gray-500"
+  }
 
   const calculateNetChange = (
     currentValue: number,
     avg_purcase_price: number,
     totalshares: number
   ) => {
-    const purchaseValue = totalshares * avg_purcase_price;
-    const changePercent =
-      ((currentValue - purchaseValue) / purchaseValue) * 100;
-    return changePercent;
-  };
+    const purchaseValue = totalshares * avg_purcase_price
+    const changePercent = ((currentValue - purchaseValue) / purchaseValue) * 100
+    return changePercent
+  }
 
   if (!portfolio)
     return (
       <div className="flex justify-center items-center min-h-screen min-w-screen mx-auto">
         Loading...
       </div>
-    );
+    )
+
+  const PortfolioCard = ({ stock }: { stock: PortfolioStock }) => {
+    const pnl = stock.current_value - stock.avg_purcase_price * stock.totalshares
+    const netPercentChange = calculateNetChange(
+      stock.current_value,
+      stock.avg_purcase_price,
+      stock.totalshares
+    )
+
+    return (
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-center mb-2">
+            <div>
+              <h3 className="font-bold">{stock.ticker}</h3>
+              <p className="text-sm">{stock.totalshares} shares</p>
+            </div>
+            <Button
+              variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
+              onClick={() => setSelectedStock(stock.ticker)}
+              className="text-sm"
+            >
+              View Chart
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <p>LTP: ${stock.current_price.toFixed(2)}</p>
+              <p>Value: ${stock.current_value.toFixed(2)}</p>
+            </div>
+            <div className="text-right">
+              <p className={getPnlClass(pnl)}>P&L: ${pnl.toFixed(2)}</p>
+              <p className={getPnlClass(netPercentChange)}>
+                Net Chg: {netPercentChange.toFixed(2)}%
+              </p>
+            </div>
+          </div>
+          <div className="mt-2">
+            <AnalyzeDialog
+              stock={stock.ticker}
+              avg_price={stock.avg_purcase_price}
+              ltp={stock.current_price}
+              shares={stock.totalshares}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const MobilePortfolio = () => {
+    return (
+      <div className="md:hidden">
+        {portfolio.stocks.map((stock) => (
+          <PortfolioCard key={stock.ticker} stock={stock} />
+        ))}
+      </div>
+    )
+  }
+
+  const DesktopPortfolio = () => {
+    return (
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Instrument</TableHead>
+              <TableHead>Qty.</TableHead>
+              <TableHead>Avg. Cost</TableHead>
+              <TableHead>LTP</TableHead>
+              <TableHead>Cur. Value</TableHead>
+              <TableHead>P&L</TableHead>
+              <TableHead>Net Chg.</TableHead>
+              <TableHead>AI Support</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {portfolio.stocks.map((stock) => {
+              const pnl =
+                stock.current_value - stock.avg_purcase_price * stock.totalshares
+              const netPercentChange = calculateNetChange(
+                stock.current_value,
+                stock.avg_purcase_price,
+                stock.totalshares
+              )
+              return (
+                <TableRow key={stock.ticker}>
+                  <TableCell>
+                    <Button
+                      variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
+                      onClick={() => setSelectedStock(stock.ticker)}
+                      className="w-full justify-start"
+                    >
+                      {stock.ticker}
+                    </Button>
+                  </TableCell>
+                  <TableCell>{stock.totalshares}</TableCell>
+                  <TableCell>${stock.avg_purcase_price.toFixed(2)}</TableCell>
+                  <TableCell>${stock.current_price.toFixed(2)}</TableCell>
+                  <TableCell>${stock.current_value.toFixed(2)}</TableCell>
+                  <TableCell className={getPnlClass(pnl)}>
+                    ${pnl.toFixed(2)}
+                  </TableCell>
+                  <TableCell className={getPnlClass(netPercentChange)}>
+                    {netPercentChange.toFixed(2)}%
+                  </TableCell>
+                  <TableCell>
+                    <AnalyzeDialog
+                      stock={stock.ticker}
+                      avg_price={stock.avg_purcase_price}
+                      ltp={stock.current_price}
+                      shares={stock.totalshares}
+                    />
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 p-5">
@@ -120,56 +234,8 @@ const Portfolio = () => {
           <CardTitle>Portfolio Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Instrument</TableHead>
-                <TableHead>Qty.</TableHead>
-                <TableHead>Avg. Cost</TableHead>
-                <TableHead>LTP</TableHead>
-                <TableHead>Cur. Value</TableHead>
-                <TableHead>P&L</TableHead>
-                <TableHead>Net Chg.</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {portfolio.stocks.map((stock) => {
-                const pnl =
-                  stock.current_value -
-                  stock.avg_purcase_price * stock.totalshares;
-                const netPercentChange = calculateNetChange(
-                  stock.current_value,
-                  stock.avg_purcase_price,
-                  stock.totalshares
-                );
-                return (
-                  <TableRow className="py-2" key={stock.ticker}>
-                    <Button
-                      variant={
-                        selectedStock == stock.ticker ? "secondary" : "ghost"
-                      }
-                      onClick={() => setSelectedStock(stock.ticker)}
-                      className="w-full justify-start"
-                    >
-                      <TableCell className="font-medium ">
-                        {stock.ticker}
-                      </TableCell>
-                    </Button>
-                    <TableCell>{stock.totalshares}</TableCell>
-                    <TableCell>${stock.avg_purcase_price.toFixed(2)}</TableCell>
-                    <TableCell>${stock.current_price.toFixed(2)}</TableCell>
-                    <TableCell>${stock.current_value.toFixed(2)}</TableCell>
-                    <TableCell className={getPnlClass(pnl)}>
-                      ${pnl.toFixed(2)}
-                    </TableCell>
-                    <TableCell className={getPnlClass(netPercentChange)}>
-                      {netPercentChange.toFixed(2)}%
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          <MobilePortfolio />
+          <DesktopPortfolio />
           {portfolio.stocks.length === 0 && (
             <div className="flex justify-center items-center">
               No stocks traded yet!
@@ -214,10 +280,8 @@ const Portfolio = () => {
                       key={stock.symbol}
                       value={stock.symbol}
                       onSelect={(currentValue) => {
-                        setSelectedStock(
-                          currentValue === symbol ? "" : currentValue
-                        );
-                        setOpen(false);
+                        setSelectedStock(currentValue === symbol ? "" : currentValue)
+                        setOpen(false)
                       }}
                       className="flex items-center justify-between py-3"
                     >
@@ -225,9 +289,7 @@ const Portfolio = () => {
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            symbol === stock.symbol
-                              ? "opacity-100"
-                              : "opacity-0"
+                            symbol === stock.symbol ? "opacity-100" : "opacity-0"
                           )}
                         />
                         <span className="font-medium">{stock.symbol}</span>
@@ -264,7 +326,7 @@ const Portfolio = () => {
         Currently, we only support US stocks. Coming soon with Indian Stocks!
       </p>
     </div>
-  );
-};
+  )
+}
 
-export default Portfolio;
+export default Portfolio

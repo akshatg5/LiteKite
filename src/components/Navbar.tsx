@@ -1,44 +1,114 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from './theme-provider';
+import { Moon, Sun, Menu, X } from "lucide-react"
+import { useTheme } from './theme-provider'
 
 const Navbar = () => {
-  const { theme, toggleTheme } = useTheme();
-  const location = useLocation();
-  const showBar = location.pathname !== '/';
+  const { theme, toggleTheme } = useTheme()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useState(false)
 
+  const showBar = location.pathname !== '/'
   if (!showBar) {
-    return null;
+    return null
   }
 
-  return (
-    <nav className="bg-transparent border-b">
+  const handleLogOut = () => {
+    localStorage.removeItem("token")
+    navigate('/')
+  }
+
+  const navItems = [
+    { to: "/portfolio", label: "Portfolio" },
+    { to: "/buy", label: "Buy" },
+    { to: "/sell", label: "Sell" },
+    { to: "/history", label: "History" },
+    { to: "/quote", label: "Quote" },
+    { to: "/profile", label: "Profile" },
+  ]
+
+  const NavLink = ({ to, label, onClick }: { to: string; label: string; onClick?: () => void }) => (
+    <Link
+      to={to}
+      className="text-sm font-medium px-3 py-2 rounded-md hover:bg-accent"
+      onClick={onClick}
+    >
+      {label}
+    </Link>
+  )
+
+  const MobileNavbar = () => (
+    <div className="md:hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b">
+        <Link to="/" className="text-xl font-bold">LiteKite</Link>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+      {isOpen && (
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          {navItems.map((item) => (
+            <NavLink key={item.to} to={item.to} label={item.label} onClick={() => setIsOpen(false)} />
+          ))}
+          <div className="flex space-x-2 mt-2">
+          <Button onClick={handleLogOut} className="flex-1">Logout</Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="flex-shrink-0"
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+  const DesktopNavbar = () => (
+    <div className="hidden md:block">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-bold">LiteKite</Link>
           </div>
-          <div className="flex items-center">
-            <Link to="/portfolio" className="text-sm font-medium max-sm:text-sm px-3 py-2 rounded-md hover:bg-accent">Portfolio</Link>
-            <Link to="/buy" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Buy</Link>
-            <Link to="/sell" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Sell</Link>
-            <Link to="/history" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">History</Link>
-            <Link to="/quote" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Quote</Link>
-            <Link to="/profile" className="text-sm font-medium max-sm:text-xs px-3 py-2 rounded-md hover:bg-accent">Profile</Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-            >
-              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-              <span className="sr-only">Toggle theme</span>
-            </Button>
+          <div className="flex items-center space-x-4">
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to} label={item.label} />
+            ))}
+            <div className="flex items-center space-x-2">
+              {
+                <Button onClick={handleLogOut}>Logout</Button>
+              }
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+              >
+                {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </nav>
-  );
-};
+    </div>
+  )
 
-export default Navbar;
+  return (
+    <nav className="bg-background border-b">
+      <MobileNavbar />
+      <DesktopNavbar />
+    </nav>
+  )
+}
+
+export default Navbar
