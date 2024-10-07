@@ -13,6 +13,7 @@ import { ThemeProvider } from './components/theme-provider';
 import LandingPage from './pages/LandingPage';
 import { Analytics } from "@vercel/analytics/react"
 import Profile from './pages/Profile';
+import Info from './pages/Info';
 
 const ProtectedRoute = ({ children } : {children : React.ReactNode}) => {
   const { isAuthenticated } = useAuth();
@@ -40,6 +41,7 @@ const App = () => {
                 <Route path="/sell" element={<ProtectedRoute><Sell /></ProtectedRoute>} />
                 <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
                 <Route path="/quote" element={<GetQuote />} />
+                <Route path='/info/:stock' element={<Info />} />
               </Routes>
             </main>
           </div>

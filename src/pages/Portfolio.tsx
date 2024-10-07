@@ -3,13 +3,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow,} from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import url from "@/lib/url"
 import { InteractiveStockChart } from "@/components/Graph"
 import { Button } from "@/components/ui/button"
 import sp500stocks from "@/lib/Stocks.json"
 import {Popover,PopoverContent,PopoverTrigger,} from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Info } from "lucide-react"
 import {Command,CommandEmpty,CommandGroup,CommandInput,CommandItem,CommandList,} from "@/components/ui/command"
 import { cn } from "@/lib/utils"
 import AnalyzeDialog from "@/components/AnalayzeDialog"
@@ -117,9 +117,16 @@ const Portfolio = () => {
       <Card className="mb-4">
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-2">
-            <div>
+            <div className="flex items-center space-x-4">
+              <div>
               <h3 className="font-bold">{stock.ticker}</h3>
               <p className="text-sm">{stock.totalshares} shares</p>
+              </div>
+              <div>
+                <Link to={`/info/${stock.ticker}`}>
+                <Info />
+                </Link>
+              </div>
             </div>
             <Button
               variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
@@ -191,7 +198,7 @@ const Portfolio = () => {
               )
               return (
                 <TableRow key={stock.ticker}>
-                  <TableCell>
+                  <TableCell className="flex items-center space-x-2">
                     <Button
                       variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
                       onClick={() => setSelectedStock(stock.ticker)}
@@ -199,6 +206,9 @@ const Portfolio = () => {
                     >
                       {stock.ticker}
                     </Button>
+                    <Link to={`/info/${stock.ticker}`}>
+                      <Info width={20} height={20} />
+                    </Link>
                   </TableCell>
                   <TableCell>{stock.totalshares}</TableCell>
                   <TableCell>${stock.avg_purcase_price.toFixed(2)}</TableCell>

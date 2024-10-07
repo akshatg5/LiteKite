@@ -25,6 +25,7 @@ import url from "@/lib/url";
 
 import axios from 'axios';
 import BuyDialog from "./BuyDialog";
+import { Link } from "react-router-dom";
 
 export const fetchStockData = async (ticker: string) => {
   try {
@@ -142,7 +143,11 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
     <Card className='w-full'>
       <CardHeader className='flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row'>
         <div className='flex flex-1 justify-between items-center px-10 sm:py-6'>
-          <CardTitle>{ticker}</CardTitle>
+          <CardTitle>
+            <Link to={`/info/${ticker}`} className="underline">
+            {ticker}
+            </Link>
+            </CardTitle>
           <BuyDialog stock={ticker} />
         </div>
       </CardHeader>
