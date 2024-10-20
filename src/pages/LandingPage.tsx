@@ -14,7 +14,7 @@ export default function LandingPage() {
               Sign in
             </Button>
           </Link>
-          <Link to="/signup">
+          <Link to="/register">
             <Button variant="secondary">Get Started</Button>
           </Link>
         </div>
@@ -29,7 +29,7 @@ export default function LandingPage() {
             Your all-in-one platform for buying and selling stocks, tracking your portfolio, all{" "}
             <span className="font-bold underline">powered by Gemini API.</span>
           </p>
-          <Link to="/signup">
+          <Link to="/register">
             <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 hover:text-purple-700">
               Get Started
             </Button>
