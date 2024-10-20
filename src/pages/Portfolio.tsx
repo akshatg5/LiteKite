@@ -38,7 +38,7 @@ const Portfolio = () => {
   //@ts-ignore
   const [symbol, setSymbol] = useState("")
   const [open, setOpen] = useState(false)
-  const [selectedStock, setSelectedStock] = useState("AAPL")
+  const [selectedStock, setSelectedStock] = useState(portfolio?.stocks[0]?.ticker || "AAPL")
   const { toast } = useToast()
   const navigate = useNavigate()
   const [filteredStocks, setFilteredStocks] = useState<Stock[]>([])
@@ -332,9 +332,6 @@ const Portfolio = () => {
           <p>Total Portfolio Value: ${portfolio.total.toFixed(2)}</p>
         </CardContent>
       </Card>
-      <p className="text-center text-neutral-500 mt-2">
-        Currently, we only support US stocks. Coming soon with Indian Stocks!
-      </p>
     </div>
   )
 }

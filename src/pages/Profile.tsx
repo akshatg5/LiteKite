@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,11 +17,15 @@ import {
 } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import url from "@/lib/url";
+import { DollarSign, IndianRupee } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 
 interface profileData {
   username: string;
   nationality: string | null;
   cash: number;
+  indiancash: number;
 }
 
 const Profile = () => {
@@ -25,6 +34,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [nationality, setNationality] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [addUsFunds, setAddUsFunds] = useState(0);
+  const [addIndianFunds, setAddIndianFunds] = useState(0);
   const navigate = useNavigate();
 
   const getProfile = async () => {
@@ -90,6 +101,45 @@ const Profile = () => {
     getProfile();
   }, []);
 
+  const handleAddFunds = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${url}/editbalances`,
+        {
+          cash: addUsFunds || 0,
+          indiancash: addIndianFunds || 0,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      if (res.status === 200) {
+        toast({
+          title : "Balance updated",
+          variant : 'default'
+        })
+        setData(prevData => {
+          if (prevData) {
+            return {
+              ...prevData,
+              cash: prevData.cash + (addUsFunds || 0),
+              indiancash: prevData.indiancash + (addIndianFunds || 0)
+            };
+          }
+          return prevData;
+        });
+        setAddIndianFunds(0)
+        setAddUsFunds(0)
+      }
+    } catch (error) {
+      console.error("Unable to update the funds");
+      setError("Error updating funds for the user.");
+    }
+  };
+
   return (
     <div className="flex flex-col justify-center w-3/4 mx-auto border border-neutral-400 shadow-md mt-5 rounded-xl p-6">
       <h1 className="text-2xl font-semibold">Profile</h1>
@@ -99,7 +149,10 @@ const Profile = () => {
             Username: {data.username}
           </CardTitle>
           <CardDescription className="text-xl font-semibold">
-            Balance: ${data.cash.toFixed(2)}
+            Indian Cash Balance: ${data.indiancash.toFixed(2)}
+          </CardDescription>
+          <CardDescription className="text-xl font-semibold">
+            US Cash Balance: ${data.cash.toFixed(2)}
           </CardDescription>
           <CardDescription className="text-xl font-semibold">
             {data.nationality ? (
@@ -138,6 +191,38 @@ const Profile = () => {
           </CardDescription>
         </Card>
       )}
+      <Card className="px-4 py-4">
+        <CardTitle className="text-md my-1">Update Balance:</CardTitle>
+        <CardDescription className="my-1">
+          Update the Indian or Us account balance:
+        </CardDescription>
+        <CardContent className="my-1">
+          <CardDescription>Add Funds for Us account:</CardDescription>
+          <Input
+            className="px-4 my-2"
+            placeholder="Enter US Balance amount..."
+            value={addUsFunds}
+            onChange={(e) => setAddUsFunds(Number(e.target.value))}
+            max={10000}
+          />
+          <Button onClick={handleAddFunds}>
+            Add Funds <DollarSign />{" "}
+          </Button>
+        </CardContent>
+        <CardContent className="my-1">
+          <CardDescription>Add Funds for Indian account:</CardDescription>
+          <Input
+            className="px-4 my-2"
+            value={addIndianFunds}
+            placeholder="Enter US Balance amount..."
+            onChange={(e) => setAddIndianFunds(Number(e.target.value))}
+            max={10000}
+          />
+          <Button onClick={handleAddFunds}>
+            Add Funds <IndianRupee />{" "}
+          </Button>
+        </CardContent>
+      </Card>
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-500">{error}</div>}
     </div>

@@ -21,7 +21,8 @@ const Navbar = () => {
   }
 
   const navItems = [
-    { to: "/portfolio", label: "Portfolio" },
+    { to: "/portfolio", label: "Portfolio ( USA )" },
+    { to: "/portfolioindia", label: "Portfolio ( India )" },
     { to: "/buy", label: "Buy" },
     { to: "/sell", label: "Sell" },
     { to: "/history", label: "History" },

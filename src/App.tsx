@@ -14,6 +14,7 @@ import LandingPage from './pages/LandingPage';
 import { Analytics } from "@vercel/analytics/react"
 import Profile from './pages/Profile';
 import Info from './pages/Info';
+import IndianPortfolio from './pages/IndiaPortfolio';
 
 const ProtectedRoute = ({ children } : {children : React.ReactNode}) => {
   const { isAuthenticated } = useAuth();
@@ -27,7 +28,7 @@ const App = () => {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <Analytics />
+          {/* <Analytics /> */}
           <div className="min-h-screen bg-background text-foreground">
            <Navbar /> 
             <main className="container mx-auto">
@@ -36,6 +37,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
+                <Route path="/portfolioindia" element={<ProtectedRoute><IndianPortfolio /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/buy" element={<ProtectedRoute><Buy /></ProtectedRoute>} />
                 <Route path="/sell" element={<ProtectedRoute><Sell /></ProtectedRoute>} />

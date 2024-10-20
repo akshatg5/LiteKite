@@ -44,10 +44,10 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
     setError(null);
     try {
       validateInput();
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error("Authentication token not found. Please log in again.");
-      }
+      // const token = localStorage.getItem('token');
+      // if (!token) {
+      //   throw new Error("Authentication token not found. Please log in again.");
+      // }
 
       const payload = {
         symbol: stock,
@@ -56,11 +56,7 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
         ltp
       };
 
-      const response = await axios.post<AnalysisResult>(`${url}/analyze`, payload, {
-        headers: {
-          'Authorization': token
-        }
-      });
+      const response = await axios.post<AnalysisResult>(`https://aisupport-five.vercel.app/api/analyze`, payload);
       setAnalysis(response.data);
     } catch (error) {
       console.error("Unable to analyze the given stock", error);
