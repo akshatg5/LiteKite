@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
-import url from "@/lib/url";
 
 interface AnalyzeDialogProps {
   stock: string;
