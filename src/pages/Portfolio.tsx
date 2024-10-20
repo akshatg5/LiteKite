@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow,} from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
@@ -81,6 +81,15 @@ const Portfolio = () => {
 
     fetchPortfolio()
   }, [toast, navigate])
+
+  const {totalInvestment,totalCurrentValue,totalPnL} = useMemo(() => {
+    if (!portfolio) return {totalInvestment : 0, totalCurrentValue : 0,totalPnL:0}
+    const totalInvestment = portfolio.stocks.reduce((sum,stock) => sum + (stock.avg_purcase_price * stock.totalshares),0);
+    const totalCurrentValue = portfolio.stocks.reduce((sum,stock) => sum + stock.current_value,0)
+    const totalPnL = totalCurrentValue - totalInvestment;
+
+    return {totalInvestment,totalCurrentValue,totalPnL}
+  },[portfolio])
 
   const getPnlClass = (value: number) => {
     if (value > 0) return "text-green-500"
@@ -239,10 +248,40 @@ const Portfolio = () => {
 
   return (
     <div className="space-y-6 p-5">
-      <Card>
+      <Card className="mx-2 mb-4 mt-2">
         <CardHeader>
-          <CardTitle>Portfolio Overview</CardTitle>
+          <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
         </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Investment</p>
+              <h2 className="text-2xl font-bold">${totalInvestment.toFixed(2)}</h2>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Current Value</p>
+              <h2 className="text-2xl font-bold">${totalCurrentValue.toFixed(2)}</h2>
+            </div>
+          <div className="mb-4">
+            <p className="text-sm text-muted-foreground">Total P&L</p>
+            <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
+              ${totalPnL.toFixed(2)} ({((totalPnL / totalInvestment) * 100).toFixed(2)}%)
+            </h2>
+          </div>
+          </div>
+          <div className="flex gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Cash Balance</p>
+              <p className="text-lg font-semibold">${portfolio.cash.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Account Value</p>
+              <p className="text-lg font-semibold">${portfolio.total.toFixed(2)}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
         <CardContent>
           <MobilePortfolio />
           <DesktopPortfolio />
@@ -320,18 +359,6 @@ const Portfolio = () => {
           <InteractiveStockChart ticker={selectedStock} />
         </div>
       )}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>
-            Cash Balance:
-            <span className="font-semibold"> ${portfolio.cash.toFixed(2)}</span>
-          </p>
-          <p>Total Portfolio Value: ${portfolio.total.toFixed(2)}</p>
-        </CardContent>
-      </Card>
     </div>
   )
 }

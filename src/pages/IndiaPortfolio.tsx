@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ interface Portfolio {
   total: number;
 }
 
-const IndianPortfolio: React.FC = () => {
+export default function IndianPortfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const { toast } = useToast();
@@ -61,6 +61,16 @@ const IndianPortfolio: React.FC = () => {
     fetchPortfolio();
   }, [toast, navigate]);
 
+  const { totalInvestment, totalCurrentValue, totalPnL } = useMemo(() => {
+    if (!portfolio) return { totalInvestment: 0, totalCurrentValue: 0, totalPnL: 0 };
+
+    const totalInvestment = portfolio.stocks.reduce((sum, stock) => sum + (stock.avg_purchase_price * stock.totalShares), 0);
+    const totalCurrentValue = portfolio.stocks.reduce((sum, stock) => sum + stock.current_value, 0);
+    const totalPnL = totalCurrentValue - totalInvestment;
+
+    return { totalInvestment, totalCurrentValue, totalPnL };
+  }, [portfolio]);
+
   const getPnlClass = (value: number) => {
     if (value > 0) return "text-green-500";
     if (value < 0) return "text-red-500";
@@ -76,75 +86,181 @@ const IndianPortfolio: React.FC = () => {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
+  const PortfolioCard = ({ stock }: { stock: PortfolioStock }) => {
+    const pnl = stock.current_value - stock.avg_purchase_price * stock.totalShares;
+    const netPercentChange = calculateNetChange(
+      stock.current_value,
+      stock.avg_purchase_price,
+      stock.totalShares
+    );
+
+    return (
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center space-x-4">
+              <div>
+                <h3 className="font-bold">{stock.ticker}</h3>
+                <p className="text-sm">{stock.totalShares} shares</p>
+              </div>
+              <div>
+                <Link to={`/info/${stock.ticker}`}>
+                  <Info />
+                </Link>
+              </div>
+            </div>
+            <Button
+              variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
+              onClick={() => setSelectedStock(stock.ticker)}
+              className="text-sm"
+            >
+              View Chart
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <p>LTP: ${stock.current_price.toFixed(2)}</p>
+              <p>Value: ${stock.current_value.toFixed(2)}</p>
+            </div>
+            <div className="text-right">
+              <p className={getPnlClass(pnl)}>P&L: ${pnl.toFixed(2)}</p>
+              <p className={getPnlClass(netPercentChange)}>
+                Net Chg: {netPercentChange.toFixed(2)}%
+              </p>
+            </div>
+          </div>
+          <div className="mt-2">
+            <AnalyzeDialog
+              stock={stock.ticker}
+              avg_price={stock.avg_purchase_price}
+              ltp={stock.current_price}
+              shares={stock.totalShares}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const MobilePortfolio = () => {
+    return (
+      <div className="md:hidden">
+        {portfolio.stocks.map((stock) => (
+          <PortfolioCard key={stock.ticker} stock={stock} />
+        ))}
+      </div>
+    );
+  };
+
+  const DesktopPortfolio = () => {
+    return (
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Instrument</TableHead>
+              <TableHead>Qty.</TableHead>
+              <TableHead>Avg. Cost</TableHead>
+              <TableHead>LTP</TableHead>
+              <TableHead>Cur. Value</TableHead>
+              <TableHead>P&L</TableHead>
+              <TableHead>Net Chg.</TableHead>
+              <TableHead>AI Support</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {portfolio.stocks.map((stock) => {
+              const pnl = stock.current_value - stock.avg_purchase_price * stock.totalShares;
+              const netPercentChange = calculateNetChange(
+                stock.current_value,
+                stock.avg_purchase_price,
+                stock.totalShares
+              );
+              return (
+                <TableRow key={stock.ticker}>
+                  <TableCell className="flex items-center space-x-2">
+                    <Button
+                      variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
+                      onClick={() => setSelectedStock(stock.ticker)}
+                      className="w-full justify-start"
+                    >
+                      {stock.ticker}
+                    </Button>
+                    <Link to={`/info/${stock.ticker}`}>
+                      <Info width={20} height={20} />
+                    </Link>
+                  </TableCell>
+                  <TableCell>{stock.totalShares}</TableCell>
+                  <TableCell>${stock.avg_purchase_price.toFixed(2)}</TableCell>
+                  <TableCell>${stock.current_price.toFixed(2)}</TableCell>
+                  <TableCell>${stock.current_value.toFixed(2)}</TableCell>
+                  <TableCell className={getPnlClass(pnl)}>
+                    ${pnl.toFixed(2)}
+                  </TableCell>
+                  <TableCell className={getPnlClass(netPercentChange)}>
+                    {netPercentChange.toFixed(2)}%
+                  </TableCell>
+                  <TableCell>
+                    <AnalyzeDialog
+                      stock={stock.ticker}
+                      avg_price={stock.avg_purchase_price}
+                      ltp={stock.current_price}
+                      shares={stock.totalShares}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 mx-4 my-2">
-      <Card>
+      <Card className="mx-2 mb-4 mt-2">
         <CardHeader>
-          <CardTitle>Portfolio Overview</CardTitle>
+          <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
         </CardHeader>
         <CardContent>
-          {portfolio.stocks.length === 0 ? (
-            <div className="text-center py-4">No stocks traded yet!</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Instrument</TableHead>
-                  <TableHead>Qty.</TableHead>
-                  <TableHead>Avg. Cost</TableHead>
-                  <TableHead>LTP</TableHead>
-                  <TableHead>Cur. Value</TableHead>
-                  <TableHead>P&L</TableHead>
-                  <TableHead>Net Chg.</TableHead>
-                  <TableHead>AI Support</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {portfolio.stocks.map((stock) => {
-                  const pnl = stock.current_value - stock.avg_purchase_price * stock.totalShares;
-                  const netPercentChange = calculateNetChange(
-                    stock.current_value,
-                    stock.avg_purchase_price,
-                    stock.totalShares
-                  );
-                  return (
-                    <TableRow key={stock.ticker}>
-                      <TableCell className="flex items-center space-x-2">
-                        <Button
-                          variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
-                          onClick={() => setSelectedStock(stock.ticker)}
-                          className="w-full justify-start"
-                        >
-                          {stock.ticker.split('.')[0]}
-                        </Button>
-                        <Link to={`/info/${stock.ticker}`}>
-                          <Info className="h-4 w-4" />
-                        </Link>
-                      </TableCell>
-                      <TableCell>{stock.totalShares}</TableCell>
-                      <TableCell>₹{stock.avg_purchase_price.toFixed(2)}</TableCell>
-                      <TableCell>₹{stock.current_price.toFixed(2)}</TableCell>
-                      <TableCell>₹{stock.current_value.toFixed(2)}</TableCell>
-                      <TableCell className={getPnlClass(pnl)}>
-                        ₹{pnl.toFixed(2)}
-                      </TableCell>
-                      <TableCell className={getPnlClass(netPercentChange)}>
-                        {netPercentChange.toFixed(2)}%
-                      </TableCell>
-                      <TableCell>
-                        <AnalyzeDialog
-                          stock={stock.ticker.split('.')[0]}
-                          avg_price={stock.avg_purchase_price}
-                          ltp={stock.current_price}
-                          shares={stock.totalShares}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
+          <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Investment</p>
+              <h2 className="text-2xl font-bold">${totalInvestment.toFixed(2)}</h2>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Current Value</p>
+              <h2 className="text-2xl font-bold">${totalCurrentValue.toFixed(2)}</h2>
+            </div>
+          <div className="mb-4">
+            <p className="text-sm text-muted-foreground">Total P&L</p>
+            <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
+              ${totalPnL.toFixed(2)} ({((totalPnL / totalInvestment) * 100).toFixed(2)}%)
+            </h2>
+          </div>
+          </div>
+          <div className="flex gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Cash Balance</p>
+              <p className="text-lg font-semibold">${portfolio.cash.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Account Value</p>
+              <p className="text-lg font-semibold">${portfolio.total.toFixed(2)}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent>
+          <MobilePortfolio />
+          <DesktopPortfolio />
+          {portfolio.stocks.length === 0 && (
+            <div className="flex justify-center items-center">
+              No stocks traded yet!
+            </div>
+          )}  
         </CardContent>
       </Card>
       {selectedStock && (
@@ -157,20 +273,6 @@ const IndianPortfolio: React.FC = () => {
           </CardContent>
         </Card>
       )}
-        <Card className='mx-2 mb-4 mt-2'>
-        <CardHeader>
-          <CardTitle>Account Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>
-            Cash Balance:
-            <span className="font-semibold"> ${portfolio.cash.toFixed(2)}</span>
-          </p>
-          <p>Total Portfolio Value: ${portfolio.total.toFixed(2)}</p>
-        </CardContent>
-      </Card>
     </div>
   );
-};
-
-export default IndianPortfolio;
+}
