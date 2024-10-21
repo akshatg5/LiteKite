@@ -144,7 +144,7 @@ export default function IndianPortfolio() {
 
   const MobilePortfolio = () => {
     return (
-      <div className="md:hidden">
+      <div className="md:hidden my-4">
         {portfolio.stocks.map((stock) => (
           <PortfolioCard key={stock.ticker} stock={stock} />
         ))}
