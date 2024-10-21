@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Link, useParams } from 'react-router-dom'
 import axios from 'axios'
 import url from '@/lib/url'
+import { Loader2 } from 'lucide-react'
 
 type FinancialData = {
     balance_sheet: any;
@@ -27,10 +28,12 @@ export default function Info() {
   const [financialData, setFinancialData] = useState<FinancialData | null>(null)
   const [companyName, setCompanyName] = useState('')
   const [news, setNews] = useState<NewsItem[]>([])
+  const [loading,setLoading] = useState(false)
   const stock = params.stock
 
   const get_fundamentals = async () => {
     try {
+      setLoading(true)
         const token = localStorage.getItem("token")
         const res = await axios.get(`${url}/fundamentals/${stock}`, {
             headers : {
@@ -41,11 +44,14 @@ export default function Info() {
         setCompanyName(res.data.company_name)
     } catch (error) {
         console.error("Unable to fetch the financial data", error)
+    } finally {
+      setLoading(false)
     }
   }
 
   const get_news = async () => {
     try {
+      setLoading(true)
         const token = localStorage.getItem("token")
         const res = await axios.get(`${url}/news/${stock}`, {
             headers : {
@@ -55,6 +61,8 @@ export default function Info() {
         setNews(res.data)
     } catch (error) {
         console.error("Unable to fetch the news data", error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -105,6 +113,7 @@ export default function Info() {
           <TabsTrigger value="financials">Financials</TabsTrigger>
           <TabsTrigger value="news">News</TabsTrigger>
         </TabsList>
+      {loading && <div>Loading...<Loader2 /></div>}
         
         <TabsContent value="financials">
           {financialData && (

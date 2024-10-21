@@ -172,7 +172,7 @@ const Portfolio = () => {
 
   const MobilePortfolio = () => {
     return (
-      <div className="md:hidden">
+      <div className="md:hidden my-4">
         {portfolio.stocks.map((stock) => (
           <PortfolioCard key={stock.ticker} stock={stock} />
         ))}
@@ -253,7 +253,7 @@ const Portfolio = () => {
           <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-sm text-muted-foreground">Total Investment</p>
               <h2 className="text-2xl font-bold">${totalInvestment.toFixed(2)}</h2>

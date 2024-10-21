@@ -53,7 +53,7 @@ const Navbar = () => {
         </button>
       </div>
       {isOpen && (
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="px-2 pt-2 pb-3 space-y-1 flex flex-col sm:px-3">
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} label={item.label} onClick={() => setIsOpen(false)} />
           ))}
