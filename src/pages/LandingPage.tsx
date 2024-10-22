@@ -1,9 +1,12 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Link } from "react-router-dom"
-import { Star, Users, Shield} from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { Star, Users, Shield } from "lucide-react";
+import { useAuth } from "@/AuthContext";
+import { motion } from "framer-motion";
 
 export default function LandingPage() {
+  const { handleGoogleAuth } = useAuth();
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-400 via-purple-500 to-orange-500">
       <nav className="flex justify-between items-center p-6">
@@ -15,33 +18,70 @@ export default function LandingPage() {
             </Button>
           </Link>
           <Link to="/register">
-            <Button variant="secondary">Get Started</Button>
+            <Button onClick={handleGoogleAuth} variant="secondary">
+              Get Started
+            </Button>
           </Link>
         </div>
       </nav>
-
       <main className="container mx-auto px-6 py-12">
         <section className="text-center mb-20">
           <h1 className="text-6xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-br from-white to-gray-200">
             LiteKite
           </h1>
           <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
-            Your all-in-one platform for buying and selling stocks, tracking your portfolio, all{" "}
+            Your all-in-one platform for buying and selling stocks, tracking
+            your portfolio, all{" "}
             <span className="font-bold underline">powered by Gemini API.</span>
           </p>
-          <Link to="/register">
-            <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 hover:text-purple-700">
-              Get Started
-            </Button>
-          </Link>
+          <motion.div
+            className="my-4"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <motion.h1
+              className="text-2xl font-semibold font-serif text-white"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              Start Trading NOW!
+            </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              <motion.button
+                whileHover={{
+                  scale: 1.05,
+                  transition: { type: "spring", stiffness: 300 },
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  size="lg"
+                  onClick={handleGoogleAuth}
+                  className="bg-white my-2 text-purple-600 hover:bg-gray-100 hover:text-purple-700"
+                >
+                  Get Started
+                </Button>
+              </motion.button>
+            </motion.div>
+          </motion.div>
         </section>
 
         <section className="grid md:grid-cols-2 gap-8 mb-20">
           <Card className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">Buy & Sell Stocks</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Buy & Sell Stocks
+              </h2>
               <p className="text-gray-100 mb-4">
-                New to stock trading? Get your hands dirty on the mock-stock exchange.
+                New to stock trading? Get your hands dirty on the mock-stock
+                exchange.
               </p>
               <img
                 src="/trade.png"
@@ -58,9 +98,12 @@ export default function LandingPage() {
 
           <Card className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">Transaction History</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Transaction History
+              </h2>
               <p className="text-gray-200 mb-4">
-                Keep track of all your trades with our comprehensive transaction history feature.
+                Keep track of all your trades with our comprehensive transaction
+                history feature.
               </p>
               <img
                 src="/history.png"
@@ -77,9 +120,12 @@ export default function LandingPage() {
 
           <Card className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">India and US Markets</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                India and US Markets
+              </h2>
               <p className="text-gray-200 mb-4">
-                Learn to invest in India or USA, Litekite supports both the markets. Analyze your investments using AI!
+                Learn to invest in India or USA, Litekite supports both the
+                markets. Analyze your investments using AI!
               </p>
               <img
                 src="/portfolio.png"
@@ -97,12 +143,18 @@ export default function LandingPage() {
           <Card className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-white mb-4">
-                Comprehensive Stock Research Tool (Coming soon for Indian stocks!)
+                Comprehensive Stock Research Tool (Coming soon for Indian
+                stocks!)
               </h2>
               <p className="text-gray-200 mb-4">
-                Get a detailed overview of the fundamentals and recent news related to a stock!
+                Get a detailed overview of the fundamentals and recent news
+                related to a stock!
               </p>
-              <img src="/quote.png" alt="Get Quote" className="w-full h-60 object-fill rounded-md mb-4" />
+              <img
+                src="/quote.png"
+                alt="Get Quote"
+                className="w-full h-60 object-fill rounded-md mb-4"
+              />
               <Link to="/quote">
                 <Button variant="secondary" className="w-full">
                   Explore Stocks
@@ -113,22 +165,39 @@ export default function LandingPage() {
         </section>
 
         <section className="text-white mb-20">
-          <h2 className="text-4xl font-bold text-center mb-10">Why Choose LiteKite?</h2>
+          <h2 className="text-4xl font-bold text-center mb-10">
+            Why Choose LiteKite?
+          </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center text-center">
               <Star className="w-12 h-12 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">AI-Powered Insights</h3>
-              <p>Leverage the power of Gemini API for advanced stock analysis and predictions.</p>
+              <h3 className="text-xl font-semibold mb-2">
+                AI-Powered Insights
+              </h3>
+              <p>
+                Leverage the power of Gemini API for advanced stock analysis and
+                predictions.
+              </p>
             </div>
             <div className="flex flex-col items-center text-center">
               <Users className="w-12 h-12 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">User-Friendly Interface</h3>
-              <p>Intuitive design makes stock trading accessible for beginners and pros alike.</p>
+              <h3 className="text-xl font-semibold mb-2">
+                User-Friendly Interface
+              </h3>
+              <p>
+                Intuitive design makes stock trading accessible for beginners
+                and pros alike.
+              </p>
             </div>
             <div className="flex flex-col items-center text-center">
               <Shield className="w-12 h-12 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Safe Learning Environment</h3>
-              <p>Practice trading with our mock exchange without risking real money.</p>
+              <h3 className="text-xl font-semibold mb-2">
+                Safe Learning Environment
+              </h3>
+              <p>
+                Practice trading with our mock exchange without risking real
+                money.
+              </p>
             </div>
           </div>
         </section>
@@ -174,5 +243,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

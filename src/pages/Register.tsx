@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Mail } from 'lucide-react';
 
 export const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading,setLoading] = useState(false)
-    const { register } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const { register,handleGoogleAuth } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
   
@@ -26,7 +27,7 @@ export const Register = () => {
         return;
       }
       try {
-        setLoading(true)
+        setLoading(true);
         await register(username, password);
         navigate('/login');
         toast({
@@ -40,7 +41,7 @@ export const Register = () => {
           variant: "destructive",
         });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     };
   
@@ -55,24 +56,29 @@ export const Register = () => {
               type="text"
               placeholder="Username"
               value={username}
-              onChange={(e:any) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <Input
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e:any) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <Input
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
-              onChange={(e:any) => setConfirmPassword(e.target.value)}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <Button type="submit" className="w-full">{loading ? 'Loading...' : "Register"}</Button>
           </form>
-        <CardDescription className="text-center text-md mt-4">Already have an account? <Link className="underline font-semibold" to={'/login'}>Login</Link></CardDescription>
+          <Button onClick={handleGoogleAuth}  className="w-full my-2">
+            <Mail className='mx-2' /> Register with Google
+          </Button>
+          <CardDescription className="text-center text-md mt-4">
+            Already have an account? <Link className="underline font-semibold" to={'/login'}>Login</Link>
+          </CardDescription>
         </CardContent>
       </Card>
     );
-  };
+};
