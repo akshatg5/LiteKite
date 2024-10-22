@@ -12,6 +12,7 @@ import GetQuote from './pages/Quote';
 import { ThemeProvider } from './components/theme-provider';
 import LandingPage from './pages/LandingPage';
 import { Analytics } from "@vercel/analytics/react"
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Profile from './pages/Profile';
 import Info from './pages/Info';
 import IndianPortfolio from './pages/IndiaPortfolio';
@@ -23,8 +24,10 @@ const ProtectedRoute = ({ children } : {children : React.ReactNode}) => {
 
 const App = () => {
   const env = import.meta.env.ENV
+  const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID
   console.log(env)
   return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <ThemeProvider>
       <AuthProvider>
         <Router>
@@ -51,6 +54,7 @@ const App = () => {
         <Toaster />
       </AuthProvider>
     </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 };
 
