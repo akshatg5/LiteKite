@@ -119,11 +119,11 @@ export default function IndianPortfolio() {
           </div>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <p>LTP: ${stock.current_price.toFixed(2)}</p>
-              <p>Value: ${stock.current_value.toFixed(2)}</p>
+              <p>LTP: ₹{stock.current_price.toFixed(2)}</p>
+              <p>Value: ₹{stock.current_value.toFixed(2)}</p>
             </div>
             <div className="text-right">
-              <p className={getPnlClass(pnl)}>P&L: ${pnl.toFixed(2)}</p>
+              <p className={getPnlClass(pnl)}>P&L: ₹{pnl.toFixed(2)}</p>
               <p className={getPnlClass(netPercentChange)}>
                 Net Chg: {netPercentChange.toFixed(2)}%
               </p>
@@ -191,9 +191,9 @@ export default function IndianPortfolio() {
                     </Link>
                   </TableCell>
                   <TableCell>{stock.totalShares}</TableCell>
-                  <TableCell>${stock.avg_purchase_price.toFixed(2)}</TableCell>
-                  <TableCell>${stock.current_price.toFixed(2)}</TableCell>
-                  <TableCell>${stock.current_value.toFixed(2)}</TableCell>
+                  <TableCell>₹{stock.avg_purchase_price.toFixed(2)}</TableCell>
+                  <TableCell>₹{stock.current_price.toFixed(2)}</TableCell>
+                  <TableCell>₹{stock.current_value.toFixed(2)}</TableCell>
                   <TableCell className={getPnlClass(pnl)}>
                     ${pnl.toFixed(2)}
                   </TableCell>
@@ -227,16 +227,16 @@ export default function IndianPortfolio() {
           <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-sm text-muted-foreground">Total Investment</p>
-              <h2 className="text-2xl font-bold">${totalInvestment.toFixed(2)}</h2>
+              <h2 className="text-2xl font-bold">₹{totalInvestment.toFixed(2)}</h2>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Current Value</p>
-              <h2 className="text-2xl font-bold">${totalCurrentValue.toFixed(2)}</h2>
+              <h2 className="text-2xl font-bold">₹{totalCurrentValue.toFixed(2)}</h2>
             </div>
           <div className="mb-4">
             <p className="text-sm text-muted-foreground">Total P&L</p>
             <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
-              ${totalPnL.toFixed(2)} ({((totalPnL / totalInvestment) * 100).toFixed(2)}%)
+              ₹{totalPnL.toFixed(2)} ({((totalPnL / totalInvestment) * 100).toFixed(2)}%)
             </h2>
           </div>
           </div>
@@ -247,7 +247,7 @@ export default function IndianPortfolio() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Account Value</p>
-              <p className="text-lg font-semibold">${portfolio.total.toFixed(2)}</p>
+              <p className="text-lg font-semibold">₹{portfolio.total.toFixed(2)}</p>
             </div>
           </div>
         </CardContent>
