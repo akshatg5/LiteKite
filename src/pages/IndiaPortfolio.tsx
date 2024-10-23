@@ -195,7 +195,7 @@ export default function IndianPortfolio() {
                   <TableCell>₹{stock.current_price.toFixed(2)}</TableCell>
                   <TableCell>₹{stock.current_value.toFixed(2)}</TableCell>
                   <TableCell className={getPnlClass(pnl)}>
-                    ${pnl.toFixed(2)}
+                    ₹{pnl.toFixed(2)}
                   </TableCell>
                   <TableCell className={getPnlClass(netPercentChange)}>
                     {netPercentChange.toFixed(2)}%
