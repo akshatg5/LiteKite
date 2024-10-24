@@ -1,7 +1,7 @@
 import { useToast } from "@/hooks/use-toast";
 import url from "@/lib/url";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -14,13 +14,6 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-
-interface Holding {
-  name: string;
-  ticker: string;
-  total_shares: number;
-}
-
 const SellDialog = ({
   stock,
   totalShares,
@@ -65,8 +58,6 @@ const SellDialog = ({
       setLoading(false);
     }
   };
-
-  const isValidStock = (stock: string) => {};
 
   return (
     <Dialog>
