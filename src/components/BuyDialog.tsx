@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
@@ -10,12 +9,13 @@ import sp500stocks from "@/lib/Stocks.json"
 
 interface BuyDialogProps {
   stock: string
+  onComplete: () => void
 }
 
-const BuyDialog: React.FC<BuyDialogProps> = ({ stock }) => {
+const BuyDialog: React.FC<BuyDialogProps> = ({ stock, onComplete }) => {
   const [shares, setShares] = useState("")
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +47,8 @@ const BuyDialog: React.FC<BuyDialogProps> = ({ stock }) => {
         title: "Success",
         description: response.data.message,
       })
-      navigate("/portfolio")
+      setOpen(false)
+      onComplete()
     } catch (error: any) {
       toast({
         title: "Error",
@@ -64,7 +65,7 @@ const BuyDialog: React.FC<BuyDialogProps> = ({ stock }) => {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Buy {stock}</Button>
       </DialogTrigger>

@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -5,13 +6,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, TrendingUp} from "lucide-react";
+import { MoreVertical, TrendingUp } from "lucide-react";
 import BuyDialog from "@/components/BuyDialog";
-import SellDialog from "./SellDialog";
+import SellDialog from "@/components/SellDialog";
 
-const StockActionsDropdown = ({ stock,totalShares } : {stock : string,totalShares:number}) => {
+interface StockActionsDropDownProps {
+  stock: string;
+  totalShares: number;
+  onActionComplete: () => void;
+}
+
+const StockActionsDropdown = ({ stock, totalShares, onActionComplete }: StockActionsDropDownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleActionComplete = useCallback(() => {
+    setIsOpen(false);
+    setTimeout(() => {
+      onActionComplete();
+    }, 500);
+  }, [onActionComplete]);
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -25,17 +41,30 @@ const StockActionsDropdown = ({ stock,totalShares } : {stock : string,totalShare
       <DropdownMenuContent align="end" className="w-32">
         <DropdownMenuItem
           className="flex items-center gap-2 cursor-pointer"
-          onSelect={(e) => e.preventDefault()}
+          onSelect={(e) => {
+            e.preventDefault();
+            setIsOpen(true);
+          }}
         >
           <TrendingUp className="h-4 w-4 text-green-500" />
-          <BuyDialog stock={stock} />
+          <BuyDialog 
+            stock={stock} 
+            onComplete={handleActionComplete}
+          />
         </DropdownMenuItem>
         <DropdownMenuItem
           className="flex items-center gap-2 cursor-pointer"
-          onSelect={(e) => e.preventDefault()}
+          onSelect={(e) => {
+            e.preventDefault();
+            setIsOpen(true);
+          }}
         >
-          <TrendingUp className="h-4 w-4 text-green-500" />
-          <SellDialog stock={stock} totalShares={totalShares} />
+          <TrendingUp className="h-4 w-4 text-red-500" />
+          <SellDialog 
+            stock={stock} 
+            totalShares={totalShares} 
+            onComplete={handleActionComplete}
+          />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
