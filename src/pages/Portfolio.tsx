@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo} from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -42,7 +42,7 @@ import AnalyzeDialog from "@/components/AnalayzeDialog";
 //   DropdownMenuTrigger,
 // } from "@/components/ui/dropdown-menu";
 // import BuyDialog from "@/components/BuyDialog";
-import StockActionsDropdown from "@/components/StockActionsDropdown";
+// import StockActionsDropdown from "@/components/StockActionsDropdown";
 
 interface Stock {
   symbol: string;
@@ -83,34 +83,39 @@ const Portfolio = () => {
     );
     setFilteredStocks(filtered);
   };
+  
+  const fetchPortfolio = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${url}/portfolio`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      setPortfolio(response.data);
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        navigate("/login");
+      }
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+      } else {
+        console.error("Error:", error);
+      }
+      toast({
+        title: "Error",
+        description: "Failed to fetch portfolio. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+    // const handleActionComplete = useCallback(() => {
+    //   fetchPortfolio();
+    // }, [fetchPortfolio]);
+
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${url}/portfolio`, {
-          headers: {
-            Authorization: token,
-          },
-        });
-        setPortfolio(response.data);
-      } catch (error: any) {
-        if (error.response && error.response.status === 401) {
-          navigate("/login");
-        }
-        if (error.response) {
-          console.error("Error response:", error.response.data);
-        } else {
-          console.error("Error:", error);
-        }
-        toast({
-          title: "Error",
-          description: "Failed to fetch portfolio. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
-
     fetchPortfolio();
   }, [toast, navigate]);
 
@@ -262,7 +267,7 @@ const Portfolio = () => {
                     <Link to={`/info/${stock.ticker}`}>
                       <Info width={20} height={20} />
                     </Link>
-                  <StockActionsDropdown stock={stock.ticker} totalShares={stock.totalshares} />
+                  {/* <StockActionsDropdown stock={stock.ticker} totalShares={stock.totalshares} onActionComplete={handleActionComplete} /> */}
                   </TableCell>
                   <TableCell>{stock.totalshares}</TableCell>
                   <TableCell>${stock.avg_purcase_price.toFixed(2)}</TableCell>

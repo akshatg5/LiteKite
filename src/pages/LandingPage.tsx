@@ -1,12 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Star, Users, Shield } from "lucide-react";
+import { Star, Users, Shield, Loader2 } from "lucide-react";
 import { useAuth } from "@/AuthContext";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 export default function LandingPage() {
   const { handleGoogleAuth } = useAuth();
+  const [loading,setLoading] = useState(false)
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true)
+      await handleGoogleAuth()
+    } catch (error) {
+      toast({
+        title : "Error",
+        description : "Failed to login with Google",
+        variant : "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-400 via-purple-500 to-orange-500">
       <nav className="flex justify-between items-center p-6">
@@ -63,10 +82,17 @@ export default function LandingPage() {
               >
                 <Button
                   size="lg"
-                  onClick={handleGoogleAuth}
+                  onClick={handleGoogleSignIn}
                   className="bg-white my-2 text-purple-600 hover:bg-gray-100 hover:text-purple-700"
                 >
-                  Get Started
+                  {
+                    loading ? 
+                    <>
+                    <Loader2 /> <p>Getting Started</p> : 
+                    </>
+                    :
+                    "Start Trading"
+                  }
                 </Button>
               </motion.button>
             </motion.div>

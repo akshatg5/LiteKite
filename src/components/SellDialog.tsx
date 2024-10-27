@@ -1,8 +1,7 @@
-import { useToast } from "@/hooks/use-toast";
-import url from "@/lib/url";
-import axios from "axios";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast"
+import url from "@/lib/url"
+import axios from "axios"
+import React, { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -11,28 +10,38 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-const SellDialog = ({
-  stock,
-  totalShares,
-}: {
-  stock: string;
-  totalShares: number;
-}) => {
-  const [shares, setShares] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+} from "./ui/dialog"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+
+interface SellDialogProps {
+  stock: string
+  totalShares: number
+  onComplete: () => void
+}
+
+const SellDialog: React.FC<SellDialogProps> = ({ stock, totalShares, onComplete }) => {
+  const [shares, setShares] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    setLoading(true);
+    if (!shares || parseInt(shares) <= 0 || parseInt(shares) > totalShares) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid number of shares to sell.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLoading(true)
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
       const response = await axios.post(
         `${url}/sell`,
         { symbol: stock, shares: parseInt(shares) },
@@ -42,25 +51,26 @@ const SellDialog = ({
             Authorization: token,
           },
         }
-      );
+      )
       toast({
         title: "Success",
         description: response.data.message,
-      });
-      navigate("/portfolio");
+      })
+      setOpen(false)
+      onComplete()
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to buy stock",
+        description: error.response?.data?.message || "Failed to sell stock",
         variant: "destructive",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Sell {stock}</Button>
       </DialogTrigger>
@@ -68,7 +78,7 @@ const SellDialog = ({
         <DialogHeader>
           <DialogTitle>Sell {stock}</DialogTitle>
           <DialogDescription>
-            Enter the number of shares you want to Sell.
+            Enter the number of shares you want to sell.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -82,6 +92,7 @@ const SellDialog = ({
                 value={shares}
                 onChange={(e) => setShares(e.target.value)}
                 type="number"
+                min="1"
                 max={totalShares}
                 className="col-span-3"
                 placeholder="Enter number of shares"
@@ -96,7 +107,7 @@ const SellDialog = ({
         </form>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default SellDialog;
+export default SellDialog

@@ -24,8 +24,7 @@ import url from "@/lib/url";
 
 
 import axios from 'axios';
-import BuyDialog from "./BuyDialog";
-import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export const fetchIndianStockData = async (ticker: string) => {
   try {
@@ -132,7 +131,9 @@ export const InteractiveIndianStockChart: FC<InteractiveStockChartProps> = ({
   const isTrendingUp = percentageChange > 0;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center">
+      <Loader2 />
+    </div>;
   }
 
   if (error) {
@@ -144,11 +145,8 @@ export const InteractiveIndianStockChart: FC<InteractiveStockChartProps> = ({
       <CardHeader className='flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row'>
         <div className='flex flex-1 justify-between items-center px-10 sm:py-6'>
           <CardTitle>
-            <Link to={`/info/${ticker}`} className="underline">
             {ticker.split('.')[0]}
-            </Link>
             </CardTitle>
-          <BuyDialog stock={ticker} />
         </div>
       </CardHeader>
       <CardContent className='px-2 sm:p-6'>

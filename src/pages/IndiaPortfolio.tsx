@@ -1,14 +1,22 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import url from "@/lib/url";
 import AnalyzeDialog from "@/components/AnalayzeDialog";
 import { InteractiveIndianStockChart } from "@/components/IndianStockGraph";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface PortfolioStock {
   ticker: string;
@@ -27,9 +35,15 @@ interface Portfolio {
 
 export default function IndianPortfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
-  const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [selectedStock, setSelectedStock] = useState<string>("");
+  const [isChartOpen,setIsChartOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const handleStockClick = (ticker : string) => {
+    setSelectedStock(ticker)
+    setIsChartOpen(true)
+  }
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -41,9 +55,6 @@ export default function IndianPortfolio() {
           },
         });
         setPortfolio(response.data);
-        if (response.data.stocks.length > 0) {
-          setSelectedStock(response.data.stocks[0].ticker);
-        }
       } catch (error: any) {
         if (error.response && error.response.status === 401) {
           navigate("/login");
@@ -62,10 +73,17 @@ export default function IndianPortfolio() {
   }, [toast, navigate]);
 
   const { totalInvestment, totalCurrentValue, totalPnL } = useMemo(() => {
-    if (!portfolio) return { totalInvestment: 0, totalCurrentValue: 0, totalPnL: 0 };
+    if (!portfolio)
+      return { totalInvestment: 0, totalCurrentValue: 0, totalPnL: 0 };
 
-    const totalInvestment = portfolio.stocks.reduce((sum, stock) => sum + (stock.avg_purchase_price * stock.totalShares), 0);
-    const totalCurrentValue = portfolio.stocks.reduce((sum, stock) => sum + stock.current_value, 0);
+    const totalInvestment = portfolio.stocks.reduce(
+      (sum, stock) => sum + stock.avg_purchase_price * stock.totalShares,
+      0
+    );
+    const totalCurrentValue = portfolio.stocks.reduce(
+      (sum, stock) => sum + stock.current_value,
+      0
+    );
     const totalPnL = totalCurrentValue - totalInvestment;
 
     return { totalInvestment, totalCurrentValue, totalPnL };
@@ -77,17 +95,26 @@ export default function IndianPortfolio() {
     return "text-gray-500";
   };
 
-  const calculateNetChange = (currentValue: number, avgPurchasePrice: number, totalShares: number) => {
+  const calculateNetChange = (
+    currentValue: number,
+    avgPurchasePrice: number,
+    totalShares: number
+  ) => {
     const purchaseValue = totalShares * avgPurchasePrice;
     return ((currentValue - purchaseValue) / purchaseValue) * 100;
   };
 
   if (!portfolio) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   const PortfolioCard = ({ stock }: { stock: PortfolioStock }) => {
-    const pnl = stock.current_value - stock.avg_purchase_price * stock.totalShares;
+    const pnl =
+      stock.current_value - stock.avg_purchase_price * stock.totalShares;
     const netPercentChange = calculateNetChange(
       stock.current_value,
       stock.avg_purchase_price,
@@ -111,7 +138,7 @@ export default function IndianPortfolio() {
             </div>
             <Button
               variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
-              onClick={() => setSelectedStock(stock.ticker)}
+              onClick={() => handleStockClick(stock.ticker)}
               className="text-sm"
             >
               View Chart
@@ -176,12 +203,13 @@ export default function IndianPortfolio() {
                 stock.avg_purchase_price,
                 stock.totalShares
               );
+              
               return (
                 <TableRow key={stock.ticker}>
                   <TableCell className="flex items-center space-x-2">
                     <Button
                       variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
-                      onClick={() => setSelectedStock(stock.ticker)}
+                      onClick={() => handleStockClick(stock.ticker)}
                       className="w-full justify-start"
                     >
                       {stock.ticker}
@@ -194,11 +222,8 @@ export default function IndianPortfolio() {
                   <TableCell>₹{stock.avg_purchase_price.toFixed(2)}</TableCell>
                   <TableCell>₹{stock.current_price.toFixed(2)}</TableCell>
                   <TableCell>₹{stock.current_value.toFixed(2)}</TableCell>
-                  <TableCell>₹{stock.avg_purchase_price.toFixed(2)}</TableCell>
-                  <TableCell>₹{stock.current_price.toFixed(2)}</TableCell>
-                  <TableCell>₹{stock.current_value.toFixed(2)}</TableCell>
                   <TableCell className={getPnlClass(pnl)}>
-                  ₹{pnl.toFixed(2)}
+                    ₹{pnl.toFixed(2)}
                   </TableCell>
                   <TableCell className={getPnlClass(netPercentChange)}>
                     {netPercentChange.toFixed(2)}%
@@ -219,63 +244,79 @@ export default function IndianPortfolio() {
       </div>
     );
   };
-
-  return (
-    <div className="space-y-6 mx-4 my-2">
-      <Card className="mx-2 mb-4 mt-2">
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Investment</p>
-              <h2 className="text-2xl font-bold">₹{totalInvestment.toFixed(2)}</h2>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Current Value</p>
-              <h2 className="text-2xl font-bold">₹{totalCurrentValue.toFixed(2)}</h2>
-            </div>
-          <div className="mb-4">
-            <p className="text-sm text-muted-foreground">Total P&L</p>
-            <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
-            ₹{totalPnL.toFixed(2)} ({((totalPnL / totalInvestment) * 100).toFixed(2)}%)
-            </h2>
-          </div>
-          </div>
-          <div className="flex gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Cash Balance</p>
-              <p className="text-lg font-semibold">₹{portfolio.cash.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Account Value</p>
-              <p className="text-lg font-semibold">₹{portfolio.total.toFixed(2)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <MobilePortfolio />
-          <DesktopPortfolio />
-          {portfolio.stocks.length === 0 && (
-            <div className="flex justify-center items-center">
-              No stocks traded yet!
-            </div>
-          )}  
-        </CardContent>
-      </Card>
-      {selectedStock && (
-        <Card>
+    
+    return (
+      <div className="space-y-6 mx-4 my-2">
+        <Card className="mx-2 mb-4 mt-2">
           <CardHeader>
-            <CardTitle>Stock Chart: {selectedStock}</CardTitle>
+            <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
           </CardHeader>
           <CardContent>
-            <InteractiveIndianStockChart ticker={selectedStock} />
+            <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Investment</p>
+                <h2 className="text-2xl font-bold">
+                  ₹{totalInvestment.toFixed(2)}
+                </h2>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Current Value</p>
+                <h2 className="text-2xl font-bold">
+                  ₹{totalCurrentValue.toFixed(2)}
+                </h2>
+              </div>
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground">Total P&L</p>
+                <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
+                  ₹{totalPnL.toFixed(2)} (
+                  {((totalPnL / totalInvestment) * 100).toFixed(2)}%)
+                </h2>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Cash Balance</p>
+                <p className="text-lg font-semibold">
+                  ₹{portfolio.cash.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Total Account Value
+                </p>
+                <p className="text-lg font-semibold">
+                  ₹{portfolio.total.toFixed(2)}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
-}
+        <Card>
+          <CardContent>
+            <MobilePortfolio />
+            <DesktopPortfolio />
+            {portfolio.stocks.length === 0 && (
+              <div className="flex justify-center items-center">
+                No stocks traded yet!
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="flex space-x-2 px-4 py-2 mb-10">
+          <AlertCircle color="red"/>
+          <p>Click on any stock to get the daily chart!</p>
+        </Card>
+        <Dialog open={isChartOpen} onOpenChange={setIsChartOpen}>
+        <DialogContent className="max-w-7xl max-sm:max-w-8xl w-full h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Stock Chart: {selectedStock}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0">
+            <InteractiveIndianStockChart ticker={selectedStock} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      </div>
+    );
+  }

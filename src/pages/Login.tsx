@@ -11,12 +11,13 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 
 export const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleloading, setGoogleLoading] = useState(false);
   const { login, handleGoogleAuth, setAuthToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,6 +39,20 @@ export const Login = () => {
       });
     }
   }, [location, setAuthToken, navigate, toast]);
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      await handleGoogleAuth();
+    } catch (error) {
+      setGoogleLoading(false);
+      toast({
+        title: "Error",
+        description: "Failed to initiate Google login",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,10 +104,21 @@ export const Login = () => {
           </Button>
         </form>
         <Button
-          onClick={handleGoogleAuth}
+          onClick={handleGoogleSignIn}
           className="w-full my-2"
+          onLoad={() => setLoading(true)}
         >
-         <Mail className="mx-2"/> Login with Google
+         {googleloading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Connecting to Google...
+            </>
+          ) : (
+            <>
+              <Mail className="mr-2" />
+              Login with Google
+            </>
+          )}
         </Button>
         <CardDescription className="text-center text-md mt-4">
           Don't have an account?{" "}

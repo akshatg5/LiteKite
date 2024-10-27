@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {Table,TableBody,TableCaption,TableCell,TableHead,TableHeader,TableRow,} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import url from "@/lib/url";
-import { DollarSign, IndianRupee } from "lucide-react";
+import { DollarSign, IndianRupee, Loader2 } from "lucide-react";
 
 interface Transaction {
   type: string;
@@ -17,11 +17,13 @@ interface Transaction {
 const History: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [indiantransactions,setIndianTransactions] = useState<Transaction[]>([])
+  const [loading,setLoading] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const fetchTransactionHistory = async () => {
       try {
+        setLoading(true)
         const response = await axios.get(`${url}/history`, {
           headers: {
             Authorization: token,
@@ -30,10 +32,13 @@ const History: React.FC = () => {
         setTransactions(response.data);
       } catch (err) {
         console.error("Error fetching transaction history:", err);
+      } finally {
+        setLoading(false)
       }
     };
     const fetchTransactionHistoryForIndianStocks = async () => {
       try {
+        setLoading(true)
         const response = await axios.get(`${url}/indianstockhistory`, {
           headers: {
             Authorization: token,
@@ -42,6 +47,8 @@ const History: React.FC = () => {
         setIndianTransactions(response.data);
       } catch (err) {
         console.error("Error fetching transaction history:", err);
+      } finally {
+        setLoading(false)
       }
     };
     fetchTransactionHistoryForIndianStocks()
@@ -57,6 +64,7 @@ const History: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {loading && <Loader2/>}
         <Table>
           <TableCaption>A list of your recent transactions for Indian Shares</TableCaption>
           <TableHeader>
