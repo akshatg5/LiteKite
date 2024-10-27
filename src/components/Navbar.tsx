@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { useTheme } from './theme-provider'
+import { useAuth } from '@/AuthContext'
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const {isAuthenticated} = useAuth()
 
   const showBar = location.pathname !== '/'
   if (!showBar) {
@@ -86,9 +88,13 @@ const Navbar = () => {
               <NavLink key={item.to} to={item.to} label={item.label} />
             ))}
             <div className="flex items-center space-x-2">
-              {
-                <Button onClick={handleLogOut}>Logout</Button>
-              }
+              { isAuthenticated ? <Button onClick={handleLogOut}>Logout</Button> : 
+              <Link to={'/login'} >
+              <Button>
+                Sign In
+                </Button>
+              </Link>
+                }
               <Button
                 variant="ghost"
                 size="icon"

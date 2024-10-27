@@ -25,7 +25,7 @@ import url from "@/lib/url";
 
 import axios from 'axios';
 import BuyDialog from "./BuyDialog";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const fetchStockData = async (ticker: string) => {
   try {
@@ -70,6 +70,7 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadData = async () => {
@@ -148,7 +149,7 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
             {ticker}
             </Link>
             </CardTitle>
-          <BuyDialog stock={ticker} />
+          <BuyDialog stock={ticker} onComplete={() => navigate('/portfolio')} />
         </div>
       </CardHeader>
       <CardContent className='px-2 sm:p-6'>
