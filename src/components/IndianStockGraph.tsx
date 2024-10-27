@@ -24,8 +24,6 @@ import url from "@/lib/url";
 
 
 import axios from 'axios';
-import BuyDialog from "./BuyDialog";
-import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 export const fetchIndianStockData = async (ticker: string) => {
