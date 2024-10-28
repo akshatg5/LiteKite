@@ -21,20 +21,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  AlertCircle,
   Check,
   ChevronsUpDown,
-  Info
+  Info,
 } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import {Command,CommandEmpty,CommandGroup,CommandInput,CommandItem,CommandList,} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import AnalyzeDialog from "@/components/AnalayzeDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // import {
 //   DropdownMenu,
 //   DropdownMenuContent,
@@ -43,6 +38,7 @@ import AnalyzeDialog from "@/components/AnalayzeDialog";
 // } from "@/components/ui/dropdown-menu";
 // import BuyDialog from "@/components/BuyDialog";
 // import StockActionsDropdown from "@/components/StockActionsDropdown";
+import UsFlag from '@/assets/united-states-flag-icon.svg'
 
 interface Stock {
   symbol: string;
@@ -68,6 +64,7 @@ const Portfolio = () => {
   //@ts-ignore
   const [symbol, setSymbol] = useState("");
   const [open, setOpen] = useState(false);
+  const [isChartOpen,setIsChartOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState(
     portfolio?.stocks[0]?.ticker || "AAPL"
   );
@@ -109,11 +106,6 @@ const Portfolio = () => {
       });
     }
   };
-  
-    // const handleActionComplete = useCallback(() => {
-    //   fetchPortfolio();
-    // }, [fetchPortfolio]);
-
 
   useEffect(() => {
     fetchPortfolio();
@@ -141,6 +133,11 @@ const Portfolio = () => {
     return "text-gray-500";
   };
 
+  const handleStockClick = (ticker : string) => {
+    setSelectedStock(ticker)
+    setIsChartOpen(true)
+  }
+
   const calculateNetChange = (
     currentValue: number,
     avg_purcase_price: number,
@@ -154,7 +151,8 @@ const Portfolio = () => {
 
   if (!portfolio)
     return (
-      <div className="flex justify-center items-center min-h-screen min-w-screen mx-auto">
+      <div className="flex flex-col justify-center items-center min-h-screen min-w-screen mx-auto">
+        <img src={UsFlag} className="w-24 h-24" />
         Loading...
       </div>
     );
@@ -185,7 +183,7 @@ const Portfolio = () => {
             </div>
             <Button
               variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
-              onClick={() => setSelectedStock(stock.ticker)}
+              onClick={() => handleStockClick(stock.ticker)}
               className="text-sm"
             >
               View Chart
@@ -259,7 +257,7 @@ const Portfolio = () => {
                       variant={
                         selectedStock === stock.ticker ? "secondary" : "ghost"
                       }
-                      onClick={() => setSelectedStock(stock.ticker)}
+                      onClick={() => handleStockClick(stock.ticker)}
                       className="w-full justify-start"
                     >
                       {stock.ticker}
@@ -300,7 +298,10 @@ const Portfolio = () => {
     <div className="space-y-6 p-5">
       <Card className="mx-2 mb-4 mt-2">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
+          <CardTitle className="text-xl font-semibold flex justify-between">
+            Holdings
+            <img src={UsFlag} className="w-20 h-20" alt="US Flag" />
+            </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
@@ -419,11 +420,22 @@ const Portfolio = () => {
           </PopoverContent>
         </Popover>
       </div>
-      {selectedStock && (
-        <div>
-          <InteractiveStockChart ticker={selectedStock} />
-        </div>
-      )}
+
+      <Card className="flex space-x-2 px-4 py-2 mb-10">
+          <AlertCircle color="red"/>
+          <p>Click on any stock to get the daily chart!</p>
+        </Card>
+
+      <Dialog open={isChartOpen} onOpenChange={setIsChartOpen}>
+        <DialogContent className="max-w-7xl max-sm:max-w-8xl w-full h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Stock Chart: {selectedStock}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0">
+            <InteractiveStockChart ticker={selectedStock} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

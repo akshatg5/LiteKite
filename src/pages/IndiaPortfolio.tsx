@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Info } from "lucide-react";
+import { AlertCircle, Info} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,7 @@ import url from "@/lib/url";
 import AnalyzeDialog from "@/components/AnalayzeDialog";
 import { InteractiveIndianStockChart } from "@/components/IndianStockGraph";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import IndiaFlag from "@/assets/india-flag-icon.svg"
 
 interface PortfolioStock {
   ticker: string;
@@ -106,7 +107,8 @@ export default function IndianPortfolio() {
 
   if (!portfolio) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <img src={IndiaFlag} className="w-24 h-24" />
         Loading...
       </div>
     );
@@ -249,7 +251,10 @@ export default function IndianPortfolio() {
       <div className="space-y-6 mx-4 my-2">
         <Card className="mx-2 mb-4 mt-2">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold">Holdings</CardTitle>
+            <CardTitle className="text-xl font-semibold flex justify-between">
+              Holdings
+              <img src={IndiaFlag} className="w-20 h-20" alt="India Flag" />
+              </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
