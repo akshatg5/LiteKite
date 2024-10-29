@@ -104,6 +104,14 @@ const Profile = () => {
   const handleAddFunds = async () => {
     try {
       const token = localStorage.getItem("token");
+      if (addUsFunds > 10000 || addIndianFunds > 10000) {
+        toast({
+          title : "Unauthorized",
+          description : "Add funds limit is 10000",
+          variant : "destructive"
+        })
+        throw new Error("Limit breached, you can only add 10000 at once")
+      }
       const res = await axios.post(
         `${url}/editbalances`,
         {
