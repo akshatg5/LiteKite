@@ -18,6 +18,7 @@ import AnalyzeDialog from "@/components/AnalayzeDialog";
 import { InteractiveIndianStockChart } from "@/components/IndianStockGraph";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import IndiaFlag from "@/assets/india-flag-icon.svg"
+import AnalyzePortfolioIndiaDialog from "@/components/AnalyzePortfolioDialogIndia";
 
 interface PortfolioStock {
   ticker: string;
@@ -63,7 +64,7 @@ export default function IndianPortfolio() {
           console.error("Error fetching portfolio:", error);
           toast({
             title: "Error",
-            description: "Failed to fetch portfolio. Please try again.",
+            description: "Failed to fetch portfolio. Please sign in again.",
             variant: "destructive",
           });
         }
@@ -251,7 +252,7 @@ export default function IndianPortfolio() {
       <div className="space-y-6 mx-4 my-2">
         <Card className="mx-2 mb-4 mt-2">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold flex justify-between">
+            <CardTitle className="text-4xl max-sm:text-xl font-semibold flex justify-between">
               Holdings
               <img src={IndiaFlag} className="w-20 h-20" alt="India Flag" />
               </CardTitle>
@@ -278,22 +279,25 @@ export default function IndianPortfolio() {
                 </h2>
               </div>
             </div>
-            <div className="flex gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Cash Balance</p>
-                <p className="text-lg font-semibold">
-                  ₹{portfolio.cash.toFixed(2)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Total Account Value
-                </p>
-                <p className="text-lg font-semibold">
-                  ₹{portfolio.total.toFixed(2)}
-                </p>
-              </div>
+            <div className="flex gap-4 justify-between">
+            <div className="flex space-x-5">
+            <div>
+              <p className="text-sm text-muted-foreground">Cash Balance</p>
+              <p className="text-lg font-semibold">
+                ${portfolio.cash.toFixed(2)}
+              </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Total Account Value
+              </p>
+              <p className="text-lg font-semibold">
+                ${portfolio.total.toFixed(2)}
+              </p>
+            </div>
+            </div>
+          <AnalyzePortfolioIndiaDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
+          </div>
           </CardContent>
         </Card>
         <Card>
