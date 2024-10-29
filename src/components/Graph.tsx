@@ -26,6 +26,7 @@ import url from "@/lib/url";
 import axios from 'axios';
 import BuyDialog from "./BuyDialog";
 import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export const fetchStockData = async (ticker: string) => {
   try {
@@ -133,7 +134,9 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
   const isTrendingUp = percentageChange > 0;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center">
+      <Loader2 />
+    </div>;
   }
 
   if (error) {

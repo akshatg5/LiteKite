@@ -149,7 +149,7 @@ const Profile = () => {
             Username: {data.username}
           </CardTitle>
           <CardDescription className="text-xl font-semibold">
-            Indian Cash Balance: ${data.indiancash.toFixed(2)}
+            Indian Cash Balance: ₹{data.indiancash.toFixed(2)}
           </CardDescription>
           <CardDescription className="text-xl font-semibold">
             US Cash Balance: ${data.cash.toFixed(2)}

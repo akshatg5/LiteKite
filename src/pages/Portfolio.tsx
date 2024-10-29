@@ -14,20 +14,10 @@ import { Link, useNavigate } from "react-router-dom";
 import url from "@/lib/url";
 import { InteractiveStockChart } from "@/components/Graph";
 import { Button } from "@/components/ui/button";
-import sp500stocks from "@/lib/Stocks.json";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   AlertCircle,
-  Check,
-  ChevronsUpDown,
   Info,
 } from "lucide-react";
-import {Command,CommandEmpty,CommandGroup,CommandInput,CommandItem,CommandList,} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
 import AnalyzeDialog from "@/components/AnalayzeDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // import {
@@ -39,11 +29,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 // import BuyDialog from "@/components/BuyDialog";
 // import StockActionsDropdown from "@/components/StockActionsDropdown";
 import UsFlag from '@/assets/united-states-flag-icon.svg'
-
-interface Stock {
-  symbol: string;
-  name: string;
-}
+import AnalayzePortfolioDialog from "@/components/AnalyzePortfolioDialog";
 
 interface PortfolioStock {
   ticker: string;
@@ -63,24 +49,12 @@ const Portfolio = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   //@ts-ignore
   const [symbol, setSymbol] = useState("");
-  const [open, setOpen] = useState(false);
   const [isChartOpen,setIsChartOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState(
     portfolio?.stocks[0]?.ticker || "AAPL"
   );
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [filteredStocks, setFilteredStocks] = useState<Stock[]>([]);
-
-  const handleStockSearch = (input: string) => {
-    const filtered = sp500stocks.filter(
-      (stock) =>
-        stock.symbol.toLowerCase().includes(input.toLowerCase()) ||
-        stock.name.toLowerCase().includes(input.toLowerCase())
-    );
-    setFilteredStocks(filtered);
-  };
-  
   const fetchPortfolio = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -101,7 +75,7 @@ const Portfolio = () => {
       }
       toast({
         title: "Error",
-        description: "Failed to fetch portfolio. Please try again.",
+        description: "Failed to fetch portfolio. Please sign in again.",
         variant: "destructive",
       });
     }
@@ -298,7 +272,7 @@ const Portfolio = () => {
     <div className="space-y-6 p-5">
       <Card className="mx-2 mb-4 mt-2">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold flex justify-between">
+          <CardTitle className="text-4xl max-sm:text-md font-semibold flex justify-between">
             Holdings
             <img src={UsFlag} className="w-20 h-20" alt="US Flag" />
             </CardTitle>
@@ -325,7 +299,8 @@ const Portfolio = () => {
               </h2>
             </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 justify-between">
+            <div className="flex space-x-5">
             <div>
               <p className="text-sm text-muted-foreground">Cash Balance</p>
               <p className="text-lg font-semibold">
@@ -340,6 +315,8 @@ const Portfolio = () => {
                 ${portfolio.total.toFixed(2)}
               </p>
             </div>
+            </div>
+          <AnalayzePortfolioDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
           </div>
         </CardContent>
       </Card>
@@ -354,73 +331,6 @@ const Portfolio = () => {
           )}
         </CardContent>
       </Card>
-      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
-        <p className="text-neutral-700 text-sm sm:text-base font-medium">
-          Click on the instrument to get the graph of that stock or search:
-        </p>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full justify-between"
-            >
-              <span className="truncate">
-                {symbol
-                  ? sp500stocks.find((stock) => stock.symbol === symbol)?.name
-                  : "Select a stock..."}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0" align="start">
-            <Command className="w-full">
-              <div className="flex items-center border-b px-3">
-                <CommandInput
-                  placeholder="Search stocks..."
-                  onValueChange={handleStockSearch}
-                  className="flex-1"
-                />
-              </div>
-              <CommandList>
-                <CommandEmpty>No stocks found!</CommandEmpty>
-                <CommandGroup>
-                  {filteredStocks.map((stock) => (
-                    <CommandItem
-                      key={stock.symbol}
-                      value={stock.symbol}
-                      onSelect={(currentValue) => {
-                        setSelectedStock(
-                          currentValue === symbol ? "" : currentValue
-                        );
-                        setOpen(false);
-                      }}
-                      className="flex items-center justify-between py-3"
-                    >
-                      <div className="flex items-center">
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            symbol === stock.symbol
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        <span className="font-medium">{stock.symbol}</span>
-                      </div>
-                      <span className="text-sm text-neutral-500 truncate max-w-[200px]">
-                        {stock.name}
-                      </span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-
       <Card className="flex space-x-2 px-4 py-2 mb-10">
           <AlertCircle color="red"/>
           <p>Click on any stock to get the daily chart!</p>

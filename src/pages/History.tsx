@@ -70,16 +70,16 @@ const History: React.FC = () => {
   return (
     <div className="flex max-sm:flex-col">
       <Card className="w-full max-w-4xl mx-4 mt-5">
-        <CardHeader className="flex">
-          <CardTitle className="text-2xl font-bold flex justify-between items-center space-x-2">
+      <CardHeader>
+          <CardTitle className="text-2xl font-bold flex justify-between items-center">
             Transaction History for Indian Stocks
-          </CardTitle>
             <div className="flex justify-center items-center">
             <IndianRupee />
-          <Button className="px-2 py-2" onClick={() => setShowIndHistory(!showIndHistory) }>
+          <Button className="px-2 py-2 my-2" onClick={() => setShowIndHistory(!showIndHistory) }>
             {showIndHistory ? <ChevronUpIcon /> : <ChevronDown/> }
           </Button>
             </div> 
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading && <Loader2 />}
@@ -122,7 +122,7 @@ const History: React.FC = () => {
                     {transaction.shares}
                   </TableCell>
                   <TableCell className="text-right font-semibold">
-                    ${(transaction.price * transaction.shares).toFixed(2)}
+                  ₹{(transaction.price * transaction.shares).toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
                     {new Date(transaction.time).toLocaleString()}

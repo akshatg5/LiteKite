@@ -31,7 +31,7 @@ const App = () => {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <Analytics />
+          {/* <Analytics /> */}
           <div className="min-h-screen bg-background text-foreground">
            <Navbar /> 
             <main className="container mx-auto">

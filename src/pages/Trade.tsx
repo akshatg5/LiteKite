@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import sp500stocks from "@/lib/Stocks.json";
 import BuyIndianStocks from "./BuyIndianStocks";
 import SellIndianStocks from "./SellIndianStocks";
 
@@ -37,9 +36,9 @@ interface Holding {
   total_shares: number;
 }
 
-interface Stock {
-  symbol: string;
+interface SearchResult {
   name: string;
+  symbol: string;
 }
 
 const TradeForm = ({ action }: { action: "Buy" | "Sell" }) => {
@@ -47,20 +46,32 @@ const TradeForm = ({ action }: { action: "Buy" | "Sell" }) => {
   const [shares, setShares] = useState("");
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState(0);
+  const [searchRes, setSearchRes] = useState<SearchResult[]>([]);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [holdings, setHoldings] = useState<Holding[]>([]);
-  const [filteredStocks, setFilteredStocks] = useState<Stock[]>([]);
+  const [query, setQuery] = useState<string>("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleStockSearch = (input: string) => {
-    const filtered = sp500stocks.filter(
-      (stock) =>
-        stock.symbol.toLowerCase().includes(input.toLowerCase()) ||
-        stock.name.toLowerCase().includes(input.toLowerCase())
-    );
-    setFilteredStocks(filtered);
+  const handleStockSearch = async (query: string) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${url}/ussearch?q=${query}&limit=5`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+      setSearchRes(res.data);
+    } catch (e) {
+      console.error("Unable to get the results from the search api.");
+      setError("Unable to load the results for the search!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -146,6 +157,13 @@ const TradeForm = ({ action }: { action: "Buy" | "Sell" }) => {
     }
   }, [action]);
 
+  
+  useEffect(() => {
+    if (query.length > 0) {
+      handleStockSearch(query);
+    }
+  }, [query]);
+
   return (
     <div className="p-5">
       <Card className="flex space-x-4 max-w-md mx-auto px-6 py-8">
@@ -159,62 +177,36 @@ const TradeForm = ({ action }: { action: "Buy" | "Sell" }) => {
       <Card className="max-w-md my-4 mx-auto">
         <CardHeader>
           <CardTitle>{action} US Stock(s)</CardTitle>
+          {error && <p className="text-red-600">{error}</p>}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {action === "Buy" && (
               <div>
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      className="w-full justify-between"
-                    >
-                      {symbol
-                        ? sp500stocks.find((stock) => stock.symbol === symbol)
-                            ?.name
-                        : "Select a stock..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput
-                        placeholder="Search stocks..."
-                        onValueChange={handleStockSearch}
-                      />
-                      <CommandList>
-                        <CommandEmpty>No stocks found!</CommandEmpty>
-                        <CommandGroup>
-                          {filteredStocks.map((stock) => (
-                            <CommandItem
-                              key={stock.symbol}
-                              value={stock.symbol}
-                              onSelect={(currentValue) => {
-                                setSymbol(
-                                  currentValue === symbol ? "" : currentValue
-                                );
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  symbol === stock.symbol
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {stock.symbol} - {stock.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <div>
+                  <Input
+                    className="my-4"
+                    onChange={(e) => setQuery(e.target.value)}
+                    value={query}
+                    placeholder="Search for Indian Stocks..."
+                  />
+                  {searchRes &&
+                    Array.isArray(searchRes) &&
+                    searchRes.map((item) => (
+                      <Card
+                        className="my-1 px-2 py-1 rounded-xl cursor-pointer"
+                        onClick={() => {
+                          setSymbol(item.symbol.split(".")[0]);
+                          setQuery(item.symbol.split(".")[0]);
+                        }}
+                      >
+                        <CardTitle>{item.name}</CardTitle>
+                        <CardDescription>
+                          {item.symbol.split(".")[0]}
+                        </CardDescription>
+                      </Card>
+                    ))}
+                </div>
                 <Input
                   className="my-4"
                   type="number"
