@@ -145,6 +145,8 @@ const Profile = () => {
     } catch (error) {
       console.error("Unable to update the funds");
       setError("Error updating funds for the user.");
+    } finally {
+      setError("")
     }
   };
 
