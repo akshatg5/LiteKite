@@ -183,6 +183,7 @@ const AnalyzePortfolioDialog: React.FC<AnalyzePortfolioProps> = ({
             {loading ? "Analyzing..." : "Analyze Portfolio"}
           </Button>
         </DialogFooter>
+        <DialogDescription>Beta phase</DialogDescription>
       </DialogContent>
     </Dialog>
   );
