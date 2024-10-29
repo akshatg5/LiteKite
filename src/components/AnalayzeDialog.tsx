@@ -10,7 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CardDescription } from "@/components/ui/card";
 import axios from "axios";
 
 interface AnalyzeDialogProps {
@@ -43,11 +46,6 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
     setError(null);
     try {
       validateInput();
-      // const token = localStorage.getItem('token');
-      // if (!token) {
-      //   throw new Error("Authentication token not found. Please log in again.");
-      // }
-
       const payload = {
         symbol: stock,
         avg_price,
@@ -81,49 +79,64 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
       <DialogTrigger asChild>
         <Button variant="outline">Analyze {stock}</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[825px]">
+      <DialogContent className="sm:max-w-[950px] max-w-full h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Analyzing {stock}</DialogTitle>
+          <DialogTitle className="text-2xl">Analyzing {stock}</DialogTitle>
           <DialogDescription>
             Analysis of your investment in {stock}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          {loading && (
-            <div className="flex items-center justify-center">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              <span>Analyzing...</span>
-            </div>
-          )}
-          {error && <p className="text-red-500">{error}</p>}
-          {analysis && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold">Pros:</h3>
-                <ul className="list-disc pl-5">
-                  {Object.values(analysis.pros).map((pro, index) => (
-                    <li key={index}>{pro}</li>
-                  ))}
-                </ul>
+        <ScrollArea className="flex-grow pr-4">
+          <div className="space-y-6">
+            {loading && (
+              <div className="flex items-center justify-center p-4">
+                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                <span className="text-lg">Analyzing {stock}...</span>
               </div>
-              <div>
-                <h3 className="font-semibold">Cons:</h3>
-                <ul className="list-disc pl-5">
-                  {Object.values(analysis.cons).map((con, index) => (
-                    <li key={index}>{con}</li>
-                  ))}
-                </ul>
+            )}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {analysis && (
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold">Pros</h3>
+                  <div className="bg-secondary p-4 rounded-lg">
+                    <ul className="list-disc pl-5 space-y-2">
+                      {Object.values(analysis.pros).map((pro, index) => (
+                        <li key={index}>{pro}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold">Cons</h3>
+                  <div className="bg-secondary p-4 rounded-lg">
+                    <ul className="list-disc pl-5 space-y-2">
+                      {Object.values(analysis.cons).map((con, index) => (
+                        <li key={index}>{con}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold">Suggestion</h3>
+                  <div className="bg-secondary p-4 rounded-lg">
+                    <p>{analysis.suggestion}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold">Suggestion:</h3>
-                <p>{analysis.suggestion}</p>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </ScrollArea>
 
-        <DialogFooter>
+        <DialogFooter className="flex items-center justify-between border-t pt-4 mt-4">
+          <CardDescription>Powered By Gemini</CardDescription>
           <Button onClick={analyzeStock} disabled={loading}>
             {loading ? "Analyzing..." : "Analyze Stock"}
           </Button>

@@ -188,7 +188,7 @@ const TradeForm = ({ action }: { action: "Buy" | "Sell" }) => {
                     className="my-4"
                     onChange={(e) => setQuery(e.target.value)}
                     value={query}
-                    placeholder="Search for Indian Stocks..."
+                    placeholder="Search for US Stocks..."
                   />
                   {searchRes &&
                     Array.isArray(searchRes) &&
