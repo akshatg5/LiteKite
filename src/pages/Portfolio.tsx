@@ -299,7 +299,7 @@ const Portfolio = () => {
               </h2>
             </div>
           </div>
-          <div className="flex gap-4 justify-between max-sm : flex-col">
+          <div className="flex gap-4 justify-between max-sm:flex-col">
             <div className="flex space-x-5">
             <div>
               <p className="text-sm text-muted-foreground">Cash Balance</p>
