@@ -35,9 +35,11 @@ export const Register = () => {
           description: "Registration successful. Please log in.",
         });
       } catch (error:any) {
+        // Handle the error response from the API
+        const errorMessage = error.response?.data?.error || error.message || "Registration failed";
         toast({
           title: "Error",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       } finally {
