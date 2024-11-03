@@ -297,7 +297,7 @@ export default function IndianPortfolio() {
               </p>
             </div>
             </div>
-            <div className="space-x-2">
+            <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
           <AnalyzePortfolioIndiaDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
           <SuggestStocksIndia cash={portfolio.cash} stocks={portfolio.stocks || []} total={portfolio.total} />
             </div>

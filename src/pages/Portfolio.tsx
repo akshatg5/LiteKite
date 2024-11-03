@@ -317,7 +317,7 @@ const Portfolio = () => {
               </p>
             </div>
             </div>
-            <div className="space-x-4">
+            <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
           <AnalayzePortfolioDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
           <SuggestStocks cash={portfolio.cash} stocks={portfolio.stocks || []} total={portfolio.total} />
             </div>

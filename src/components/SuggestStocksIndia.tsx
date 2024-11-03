@@ -31,12 +31,12 @@ interface SuggestStocksPropsIndia {
 
 interface SuggestionResult {
   existing_holdings: {
-    advice: string;
+    advice: string | {[ticker : string] : string };
   };
   portfolio_analysis: {
     investment_style: string;
     risk_profile: string;
-    sector_exposure: string
+    sector_exposure: string | { [sector: string]: string };
   };
   recommendations: {
     [key: string]: {
@@ -63,16 +63,16 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
     setLoading(true);
     setError(null);
     try {
-        const transformedStocks = stocks.map(stock => ({
-            ticker: stock.ticker,
-            totalshares: stock.totalShares,
-            avg_purcase_price: stock.avg_purchase_price,
-            current_price: stock.current_price
-          }));
-    
+      const transformedStocks = stocks.map(stock => ({
+        ticker: stock.ticker,
+        totalshares: stock.totalShares,
+        avg_purcase_price: stock.avg_purchase_price,
+        current_price: stock.current_price
+      }));
+
       const response = await axios.post(
         "https://aisupport-five.vercel.app/api/suggest-stocks",
-        { total, stocks : transformedStocks, cash }
+        { total, stocks: transformedStocks, cash }
       );
       if (response.data && Object.keys(response.data).length > 0) {
         setSuggestion(response.data);
@@ -95,6 +95,34 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
   const clearResults = () => {
     setSuggestion(null);
     setError(null);
+  };
+
+  const renderSectorExposure = (sectorExposure: string | { [sector: string]: string }) => {
+    if (typeof sectorExposure === 'string') {
+      return <p>{sectorExposure}</p>;
+    } else {
+      return (
+        <ul className="list-disc list-inside pl-4">
+          {Object.entries(sectorExposure).map(([sector, exposure]) => (
+            <li key={sector}>{sector}: {exposure}</li>
+          ))}
+        </ul>
+      );
+    }
+  };
+
+  const renderAdvice = (existing_holdings: string | { [ticker: string]: string }) => {
+    if (typeof existing_holdings === 'string') {
+      return <p>{existing_holdings}</p>;
+    } else {
+      return (
+        <ul className="list-disc list-inside pl-4">
+          {Object.entries(existing_holdings.advice).map(([ticker, advice]) => (
+            <li key={ticker}>{ticker}: {advice}</li>
+          ))}
+        </ul>
+      );
+    }
   };
 
   return (
@@ -133,7 +161,7 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
                   <div className="space-y-4">
                     <h3 className="text-xl font-bold">Existing Holdings Advice</h3>
                     <div className="bg-secondary p-4 rounded-lg">
-                      <p>{suggestion.existing_holdings.advice}</p>
+                      <p>{renderAdvice(suggestion.existing_holdings.advice)}</p>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -141,7 +169,8 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
                     <div className="bg-secondary p-4 rounded-lg">
                       <p><span className="font-semibold">Risk profile:</span> {suggestion.portfolio_analysis.risk_profile}</p>
                       <p><span className="font-semibold">Investment Style:</span> {suggestion.portfolio_analysis.investment_style}</p>
-                      <p><span className="font-semibold">Sector Exposure:</span> {suggestion.portfolio_analysis.sector_exposure} </p>
+                      <p><span className="font-semibold">Sector Exposure:</span></p>
+                      {renderSectorExposure(suggestion.portfolio_analysis.sector_exposure)}
                     </div>
                   </div>
                   <div className="space-y-4">

@@ -29,14 +29,12 @@ interface SuggestStocksProps {
 
 interface SuggestionResult {
   existing_holdings: {
-    advice: string;
+    advice: string | {[ticker : string] : string };
   };
   portfolio_analysis: {
     investment_style: string;
     risk_profile: string;
-    sector_exposure: {
-      [sector: string]: string;
-    };
+    sector_exposure: string | { [sector: string]: string };
   };
   recommendations: {
     [key: string]: {
@@ -90,6 +88,37 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
     setError(null);
   };
 
+  const renderSectorExposure = (sectorExposure: string | { [sector: string]: string }) => {
+    if (typeof sectorExposure === 'string') {
+      return <p>{sectorExposure}</p>;
+    } else {
+      return (
+        <ul className="list-disc list-inside pl-4">
+          {Object.entries(sectorExposure).map(([sector, exposure]) => (
+            <li key={sector}>{sector}: {exposure}</li>
+          ))}
+        </ul>
+      );
+    }
+  };
+
+  
+  const renderAdvice = (existing_holdings: string | { [ticker: string]: string }) => {
+    if (typeof existing_holdings === 'string') {
+      return <p>{existing_holdings}</p>;
+    } else {
+      return (
+        <ul className="list-disc list-inside pl-4">
+          {Object.entries(existing_holdings.advice).map(([ticker, advice]) => (
+            <li key={ticker}>{ticker}: {advice}</li>
+          ))}
+        </ul>
+      );
+    }
+  };
+
+
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -126,7 +155,7 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
                   <div className="space-y-4">
                     <h3 className="text-xl font-bold">Existing Holdings Advice</h3>
                     <div className="bg-secondary p-4 rounded-lg">
-                      <p>{suggestion.existing_holdings.advice}</p>
+                      <p>{renderAdvice(suggestion.existing_holdings.advice)}</p>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -135,11 +164,7 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
                       <p><span className="font-semibold">Risk profile:</span> {suggestion.portfolio_analysis.risk_profile}</p>
                       <p><span className="font-semibold">Investment Style:</span> {suggestion.portfolio_analysis.investment_style}</p>
                       <p><span className="font-semibold">Sector Exposure:</span></p>
-                      <ul className="list-disc list-inside pl-4">
-                        {Object.entries(suggestion.portfolio_analysis.sector_exposure).map(([sector, exposure]) => (
-                          <li key={sector}>{sector}: {exposure}</li>
-                        ))}
-                      </ul>
+                      {renderSectorExposure(suggestion.portfolio_analysis.sector_exposure)}
                     </div>
                   </div>
                   <div className="space-y-4">
