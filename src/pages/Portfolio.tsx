@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 // import StockActionsDropdown from "@/components/StockActionsDropdown";
 import UsFlag from '@/assets/united-states-flag-icon.svg'
 import AnalayzePortfolioDialog from "@/components/AnalyzePortfolioDialog";
+import SuggestStocks from "@/components/SuggestStocks";
 
 interface PortfolioStock {
   ticker: string;
@@ -316,7 +317,10 @@ const Portfolio = () => {
               </p>
             </div>
             </div>
+            <div className="space-x-4">
           <AnalayzePortfolioDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
+          <SuggestStocks cash={portfolio.cash} stocks={portfolio.stocks || []} total={portfolio.total} />
+            </div>
           </div>
         </CardContent>
       </Card>
