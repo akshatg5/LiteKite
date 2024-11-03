@@ -19,6 +19,7 @@ import { InteractiveIndianStockChart } from "@/components/IndianStockGraph";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import IndiaFlag from "@/assets/india-flag-icon.svg"
 import AnalyzePortfolioIndiaDialog from "@/components/AnalyzePortfolioDialogIndia";
+import SuggestStocksIndia from "@/components/SuggestStocksIndia";
 
 interface PortfolioStock {
   ticker: string;
@@ -296,7 +297,10 @@ export default function IndianPortfolio() {
               </p>
             </div>
             </div>
+            <div className="space-x-2">
           <AnalyzePortfolioIndiaDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
+          <SuggestStocksIndia cash={portfolio.cash} stocks={portfolio.stocks || []} total={portfolio.total} />
+            </div>
           </div>
           </CardContent>
         </Card>
