@@ -18,9 +18,17 @@ export const useTheme = () => {
   };
 
 export const ThemeProvider = ({children} : {children : any}) => {
-    const [theme,setTheme] = useState<Theme>('light')
+    const [theme, setTheme] = useState<Theme>(() => {
+        const localTheme = localStorage.getItem('theme') as Theme | null;
+        return localTheme || 'light';
+    });
+   
     const toggleTheme = () => {
-        setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'))
+        setTheme((prevTheme) => {
+            const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme',newTheme)
+            return newTheme
+        } )
     }
 
     useEffect(() => {
