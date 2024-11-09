@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import Navbar from './components/Navbar';
 import Portfolio from './pages/Portfolio';
 import { Buy, Sell } from './pages/Trade';
-import { Register } from './pages/Register';
+import Register  from './pages/Register';
 import { Login } from './pages/Login';
 import History from './pages/History';
 import GetQuote from './pages/Quote';
