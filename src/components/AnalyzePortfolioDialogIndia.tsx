@@ -92,7 +92,7 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-xl font-bold">Analyze Portfolio</Button>
+        <Button disabled variant="outline" className="text-xl font-bold">Analyze Portfolio</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[950px] max-w-full h-[90vh] flex flex-col">
         <DialogHeader>

@@ -77,7 +77,7 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Analyze {stock}</Button>
+        <Button variant="outline" disabled>Analyze {stock}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[950px] max-w-full h-[90vh] flex flex-col">
         <DialogHeader>
