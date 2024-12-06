@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CardDescription } from "@/components/ui/card";
@@ -23,14 +23,14 @@ interface AnalyzeDialogProps {
   ltp: number;
 }
 
-interface AnalysisResult {
+interface AnalysisData {
   pros: { [key: string]: string };
   cons: { [key: string]: string };
   suggestion: string;
 }
 
 const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares, ltp }) => {
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -53,15 +53,13 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
         ltp
       };
 
-      const response = await axios.post<AnalysisResult>(`https://aisupport-five.vercel.app/api/analyze`, payload);
-      setAnalysis(response.data);
+      const response = await axios.post<{ analysis: string }>(`https://aisupport-five.vercel.app/api/analyze`, payload);
+      
+      // Parse the analysis string into an object
+      const parsedAnalysis: AnalysisData = JSON.parse(response.data.analysis);
+      setAnalysis(parsedAnalysis);
     } catch (error) {
       console.error("Unable to analyze the given stock", error);
-      if (axios.isAxiosError(error)) {
-        console.error("Response data:", error.response?.data);
-        console.error("Response status:", error.response?.status);
-        console.error("Response headers:", error.response?.headers);
-      }
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       setError(errorMessage);
       toast({
@@ -74,10 +72,27 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
     }
   };
 
+  const renderAnalysisSection = (title: string, items: { [key: string]: string } | undefined, icon: React.ReactNode) => {
+    if (!items) return null;
+    return (
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          {icon}
+          {title}
+        </h3>
+        <ul className="list-disc pl-6 space-y-1">
+          {Object.values(items).map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled>Analyze {stock}</Button>
+        <Button variant="outline">Analyze {stock}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[950px] max-w-full h-[90vh] flex flex-col">
         <DialogHeader>
@@ -104,31 +119,11 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
             )}
             {analysis && (
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold">Pros</h3>
-                  <div className="bg-secondary p-4 rounded-lg">
-                    <ul className="list-disc pl-5 space-y-2">
-                      {Object.values(analysis.pros).map((pro, index) => (
-                        <li key={index}>{pro}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold">Cons</h3>
-                  <div className="bg-secondary p-4 rounded-lg">
-                    <ul className="list-disc pl-5 space-y-2">
-                      {Object.values(analysis.cons).map((con, index) => (
-                        <li key={index}>{con}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold">Suggestion</h3>
-                  <div className="bg-secondary p-4 rounded-lg">
-                    <p>{analysis.suggestion}</p>
-                  </div>
+                {renderAnalysisSection("Pros", analysis.pros, <CheckCircle2 className="h-5 w-5 text-green-500" />)}
+                {renderAnalysisSection("Cons", analysis.cons, <XCircle className="h-5 w-5 text-red-500" />)}
+                <div className="space-y-2">
+                  <h3 className="text-lg text-black font-semibold">Suggestion</h3>
+                  <p className="text-muted-foreground">{analysis.suggestion}</p>
                 </div>
               </div>
             )}
@@ -147,3 +142,4 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
 };
 
 export default AnalyzeDialog;
+
