@@ -122,7 +122,7 @@ const AnalyzeDialog: React.FC<AnalyzeDialogProps> = ({ stock, avg_price, shares,
                 {renderAnalysisSection("Pros", analysis.pros, <CheckCircle2 className="h-5 w-5 text-green-500" />)}
                 {renderAnalysisSection("Cons", analysis.cons, <XCircle className="h-5 w-5 text-red-500" />)}
                 <div className="space-y-2">
-                  <h3 className="text-lg text-black font-semibold">Suggestion</h3>
+                  <h3 className="text-lg font-semibold">Suggestion</h3>
                   <p className="text-muted-foreground">{analysis.suggestion}</p>
                 </div>
               </div>
