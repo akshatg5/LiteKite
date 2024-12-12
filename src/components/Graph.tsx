@@ -22,23 +22,23 @@ import {
 } from "./ui/chart";
 import url from "@/lib/url";
 
-
-import axios from 'axios';
+import axios from "axios";
 import BuyDialog from "./BuyDialog";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { Button } from "./ui/button";
 
 export const fetchStockData = async (ticker: string) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.get(`${url}/stock_data/${ticker}`, {
-        headers : {
-            Authorization: `${token}`,
-        }
+      headers: {
+        Authorization: `${token}`,
+      },
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching stock data:', error);
+    console.error("Error fetching stock data:", error);
     throw error;
   }
 };
@@ -69,9 +69,11 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
   ticker,
 }) => {
   const [chartData, setChartData] = useState<any[]>([]);
+  const [predictedData, setPredictedData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPredicting, setIsPredicting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadData = async () => {
@@ -90,27 +92,67 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
     loadData();
   }, [ticker]);
 
+  const getPredictedData = async (stockData: any[], ticker: string) => {
+    try {
+      setIsPredicting(true);
+      const response = await axios.post(
+        "https://aisupport-five.vercel.app/api/stock-prediction",
+        {
+          symbol: ticker,
+          graph_data: stockData,
+        }
+      );
+
+      const parsedResponse = JSON.parse(response.data.analysis);
+      setPredictedData(parsedResponse.predictions);
+    } catch (error: any) {
+      console.error("Unable to fetch the data", error);
+    } finally {
+      setIsPredicting(false);
+    }
+  };
+
   const formattedData = useMemo(
     () =>
       chartData
         .map((item) => ({
           ...item,
           dateTime: new Date(item.date).getTime(),
+          isPredicted: false,
         }))
         .filter((item) => !isNaN(item.dateTime))
         .sort((a, b) => a.dateTime - b.dateTime),
     [chartData]
   );
 
+  const combinedData = useMemo(() => {
+    // If no predicted data, return only formatted data
+    if (predictedData.length === 0) return formattedData;
+
+    // Format predicted data
+    const formattedPredictedData = predictedData.map((item) => ({
+      ...item,
+      dateTime: new Date(item.date).getTime(),
+      isPredicted: true,
+    }));
+
+    // Combine original and predicted data, removing duplicates
+    const combinedDataSet = new Set([
+      ...formattedData,
+      ...formattedPredictedData,
+    ]);
+    return Array.from(combinedDataSet).sort((a, b) => a.dateTime - b.dateTime);
+  }, [formattedData, predictedData]);
+
   const minValue = useMemo(
     () =>
-      Math.min(...formattedData.map((item) => Math.min(item.open, item.close))),
-    [formattedData]
+      Math.min(...combinedData.map((item) => Math.min(item.open, item.close))),
+    [combinedData]
   );
   const maxValue = useMemo(
     () =>
-      Math.max(...formattedData.map((item) => Math.max(item.open, item.close))),
-    [formattedData]
+      Math.max(...combinedData.map((item) => Math.max(item.open, item.close))),
+    [combinedData]
   );
 
   const percentageChange = useMemo(() => {
@@ -134,9 +176,11 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
   const isTrendingUp = percentageChange > 0;
 
   if (isLoading) {
-    return <div className="flex justify-center">
-      <Loader2 className="animate-spin" />
-    </div>;
+    return (
+      <div className="flex justify-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   if (error) {
@@ -144,39 +188,41 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
   }
 
   return (
-    <Card className='w-full'>
-      <CardHeader className='flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row'>
-        <div className='flex flex-1 justify-between items-center px-10 sm:py-6'>
+    <Card className="w-full">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+        <div className="flex flex-1 justify-between items-center px-10 sm:py-6">
           <CardTitle>
             <Link to={`/info/${ticker}`} className="underline">
-            {ticker}
+              {ticker}
             </Link>
-            </CardTitle>
-          <BuyDialog stock={ticker} onComplete={() => navigate('/portfolio')} />
+          </CardTitle>
+          <BuyDialog stock={ticker} onComplete={() => navigate("/portfolio")} />
         </div>
       </CardHeader>
-      <CardContent className='px-2 sm:p-6'>
-        <div className='aspect-auto h-[400px] w-full'>
+      <CardContent className="px-2 sm:p-6">
+        <div className="aspect-auto h-[400px] w-full">
           <ChartContainer
             config={chartConfig}
-            className='aspect-auto h-[400px] w-full'>
-            <ResponsiveContainer width='100%' height='100%'>
+            className="aspect-auto h-[400px] w-full"
+          >
+            <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={formattedData}
+                data={combinedData}
                 margin={{
                   top: 20,
                   right: 30,
                   left: 20,
                   bottom: 10,
-                }}>
-                <CartesianGrid strokeDasharray='3 3' />
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
-                  dataKey='date'
+                  dataKey="date"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
                   minTickGap={32}
-                  tickFormatter={(value:any) => {
+                  tickFormatter={(value: any) => {
                     const date = new Date(value);
                     return date.toLocaleDateString("en-US", {
                       month: "short",
@@ -186,13 +232,13 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
                 />
                 <YAxis
                   domain={[minValue * 0.9, maxValue * 1.1]}
-                  tickFormatter={(value:any) => `$${value.toFixed(2)}`}
+                  tickFormatter={(value: any) => `$${value.toFixed(2)}`}
                 />
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
-                      className='w-[150px]'
-                      labelFormatter={(value:any) => {
+                      className="w-[150px]"
+                      labelFormatter={(value: any) => {
                         return new Date(value).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -202,55 +248,70 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
                   }
                 />
                 <Line
-                  type='monotone'
-                  dataKey='high'
+                  type="monotone"
+                  dataKey="high"
                   stroke={chartConfig.high.color}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
+                  connectNulls
                 />
                 <Line
-                  type='monotone'
-                  dataKey='close'
+                  type="monotone"
+                  dataKey="close"
                   stroke={chartConfig.close.color}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
+                  connectNulls
                 />
                 <Line
-                  type='monotone'
-                  dataKey='low'
+                  type="monotone"
+                  dataKey="low"
                   stroke={chartConfig.low.color}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
+                  connectNulls
                 />
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
         </div>
       </CardContent>
-      <CardFooter className='flex-col items-start gap-2 text-sm'>
-        <div className='font-medium leading-none'>
-          {isTrendingUp ? (
-            <>
-              Trending up by{" "}
-              <span className='text-[#2DB78A]'>
-                {percentageChange.toFixed(2)}%{" "}
-              </span>{" "}
-              this month{" "}
-              {/* <TrendingUp className='inline text-[#2DB78A] h-4 w-4' /> */}
-            </>
-          ) : (
-            <>
-              Trending down by{" "}
-              <span className='text-[#E2366F]'>
-                {percentageChange.toFixed(2)}%{" "}
-              </span>{" "}
-              this month{" "}
-              {/* <TrendingDown className='inline text-[#E2366F] h-4 w-4' /> */}
-            </>
-          )}
-        </div>
-        <div className='leading-none text-muted-foreground'>
-          Showing stock data for the last 3 months
+      <CardFooter className=" items-start gap-2 text-sm">
+        <div className="flex ">
+          <div>
+            <div className="font-medium leading-none">
+              {isTrendingUp ? (
+                <>
+                  Trending up by{" "}
+                  <span className="text-[#2DB78A]">
+                    {percentageChange.toFixed(2)}%{" "}
+                  </span>{" "}
+                  this month{" "}
+                </>
+              ) : (
+                <>
+                  Trending down by{" "}
+                  <span className="text-[#E2366F]">
+                    {percentageChange.toFixed(2)}%{" "}
+                  </span>{" "}
+                  this month{" "}
+                </>
+              )}
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Showing stock data for the last 3 months
+            </div>
+          </div>
+          <Button
+            className="mx-5"
+            onClick={() => getPredictedData(formattedData, ticker)}
+            disabled={isPredicting}
+          >
+            {isPredicting ? "Predicting..." : "Predict"}
+          </Button>
         </div>
       </CardFooter>
     </Card>

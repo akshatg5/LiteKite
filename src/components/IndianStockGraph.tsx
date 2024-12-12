@@ -25,6 +25,7 @@ import url from "@/lib/url";
 
 import axios from 'axios';
 import { Loader2 } from "lucide-react";
+import { Button } from "./ui/button";
 
 export const fetchIndianStockData = async (ticker: string) => {
   try {
@@ -69,6 +70,9 @@ export const InteractiveIndianStockChart: FC<InteractiveStockChartProps> = ({
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [predictedData, setPredictedData] = useState<any[]>([]);
+  const [isPredicting, setIsPredicting] = useState(false);
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -99,16 +103,56 @@ export const InteractiveIndianStockChart: FC<InteractiveStockChartProps> = ({
     [chartData]
   );
 
+  const getPredictedData = async (stockData: any[], ticker: string) => {
+    try {
+      setIsPredicting(true);
+      const response = await axios.post(
+        "https://aisupport-five.vercel.app/api/stock-prediction",
+        {
+          symbol: ticker,
+          graph_data: stockData,
+        }
+      );
+
+      const parsedResponse = JSON.parse(response.data.analysis);
+      setPredictedData(parsedResponse.predictions);
+    } catch (error: any) {
+      console.error("Unable to fetch the data", error);
+    } finally {
+      setIsPredicting(false);
+    }
+  };
+
+  const combinedData = useMemo(() => {
+    // If no predicted data, return only formatted data
+    if (predictedData.length === 0) return formattedData;
+
+    // Format predicted data
+    const formattedPredictedData = predictedData.map((item) => ({
+      ...item,
+      dateTime: new Date(item.date).getTime(),
+      isPredicted: true,
+    }));
+
+    // Combine original and predicted data, removing duplicates
+    const combinedDataSet = new Set([
+      ...formattedData,
+      ...formattedPredictedData,
+    ]);
+    return Array.from(combinedDataSet).sort((a, b) => a.dateTime - b.dateTime);
+  }, [formattedData, predictedData]);
+
   const minValue = useMemo(
     () =>
-      Math.min(...formattedData.map((item) => Math.min(item.open, item.close))),
-    [formattedData]
+      Math.min(...combinedData.map((item) => Math.min(item.open, item.close))),
+    [combinedData]
   );
   const maxValue = useMemo(
     () =>
-      Math.max(...formattedData.map((item) => Math.max(item.open, item.close))),
-    [formattedData]
+      Math.max(...combinedData.map((item) => Math.max(item.open, item.close))),
+    [combinedData]
   );
+
 
   const percentageChange = useMemo(() => {
     if (formattedData.length === 0) return 0;
@@ -156,7 +200,7 @@ export const InteractiveIndianStockChart: FC<InteractiveStockChartProps> = ({
             className='aspect-auto h-[400px] w-full'>
             <ResponsiveContainer width='100%' height='100%'>
               <LineChart
-                data={formattedData}
+                data={combinedData}
                 margin={{
                   top: 20,
                   right: 30,
@@ -222,29 +266,38 @@ export const InteractiveIndianStockChart: FC<InteractiveStockChartProps> = ({
         </div>
       </CardContent>
       <CardFooter className='flex-col items-start gap-2 text-sm'>
-        <div className='font-medium leading-none'>
-          {isTrendingUp ? (
-            <>
-              Trending up by{" "}
-              <span className='text-[#2DB78A]'>
-                {percentageChange.toFixed(2)}%{" "}
-              </span>{" "}
-              this month{" "}
-              {/* <TrendingUp className='inline text-[#2DB78A] h-4 w-4' /> */}
-            </>
-          ) : (
-            <>
-              Trending down by{" "}
-              <span className='text-[#E2366F]'>
-                {percentageChange.toFixed(2)}%{" "}
-              </span>{" "}
-              this month{" "}
-              {/* <TrendingDown className='inline text-[#E2366F] h-4 w-4' /> */}
-            </>
-          )}
-        </div>
-        <div className='leading-none text-muted-foreground'>
-          Showing stock data for the last 3 months
+      <div className="flex ">
+          <div>
+            <div className="font-medium leading-none">
+              {isTrendingUp ? (
+                <>
+                  Trending up by{" "}
+                  <span className="text-[#2DB78A]">
+                    {percentageChange.toFixed(2)}%{" "}
+                  </span>{" "}
+                  this month{" "}
+                </>
+              ) : (
+                <>
+                  Trending down by{" "}
+                  <span className="text-[#E2366F]">
+                    {percentageChange.toFixed(2)}%{" "}
+                  </span>{" "}
+                  this month{" "}
+                </>
+              )}
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Showing stock data for the last 3 months
+            </div>
+          </div>
+          <Button
+            className="mx-5"
+            onClick={() => getPredictedData(formattedData, ticker)}
+            disabled={isPredicting}
+          >
+            {isPredicting ? "Predicting..." : "Predict"}
+          </Button>
         </div>
       </CardFooter>
     </Card>
