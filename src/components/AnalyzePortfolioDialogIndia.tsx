@@ -22,29 +22,27 @@ interface AnalyzePortfolioProps {
 }
 
 interface AnalysisResult {
-  portfolio_health?: {
+  portfolio_health: {
     diversification_score: string;
     risk_assessment: string;
     sector_balance: string;
   };
-  stock_analysis?: {
+  stock_analysis: {
     [key: string]: {
       outlook: string;
       suggestion: string;
     };
   };
-  recommendations?: {
+  recommendations: {
     immediate_actions: string[];
     rebalancing: string;
     cash_strategy: string;
   };
-  market_context?: {
+  market_context: {
     current_environment: string;
     opportunities: string[];
     risks: string[];
   };
-  error?: string;
-  message?: string;
 }
 
 const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
@@ -60,7 +58,6 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
     setLoading(true);
     setError(null);
     try {
-      // Transform the stocks data to match the expected payload
       const transformedStocks = stocks.map(stock => ({
         ticker: stock.ticker,
         totalshares: stock.totalShares,
@@ -72,10 +69,8 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
         "https://aisupport-five.vercel.app/api/portfolio-analyze",
         { total, stocks: transformedStocks, cash }
       );
-      setAnalysis(response.data);
-      if (response.data.error) {
-        setError(response.data.error);
-      }
+      const parsedAnalysis: AnalysisResult = JSON.parse(response.data.analysis);
+      setAnalysis(parsedAnalysis);
     } catch (error) {
       console.error("Unable to fetch analysis for portfolio.", error);
       setError("Analysis Failed. Please try again.");
@@ -92,7 +87,9 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button disabled variant="outline" className="text-xl font-bold">Analyze Portfolio</Button>
+        <Button variant="outline" className="text-xl font-bold">
+          Analyze Portfolio
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[950px] max-w-full h-[90vh] flex flex-col">
         <DialogHeader>
@@ -117,74 +114,66 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            {analysis && !error && (
+            {analysis && (
               <>
                 <div className="grid md:grid-cols-2 gap-6">
-                  {analysis.portfolio_health && (
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-bold">Portfolio Health</h3>
-                      <div className="bg-secondary p-4 rounded-lg">
-                        <p><span className="font-semibold">Diversification Score:</span> {analysis.portfolio_health.diversification_score}</p>
-                        <p><span className="font-semibold">Risk Assessment:</span> {analysis.portfolio_health.risk_assessment}</p>
-                        <p><span className="font-semibold">Sector Balance:</span> {analysis.portfolio_health.sector_balance}</p>
-                      </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold">Portfolio Health</h3>
+                    <div className="bg-secondary p-4 rounded-lg">
+                      <p><span className="font-semibold">Diversification Score:</span> {analysis.portfolio_health.diversification_score}</p>
+                      <p><span className="font-semibold">Risk Assessment:</span> {analysis.portfolio_health.risk_assessment}</p>
+                      <p><span className="font-semibold">Sector Balance:</span> {analysis.portfolio_health.sector_balance}</p>
                     </div>
-                  )}
-                  {analysis.stock_analysis && (
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-bold">Stock Analysis</h3>
-                      <div className="bg-secondary p-4 rounded-lg space-y-2">
-                        {Object.entries(analysis.stock_analysis).map(([ticker, data]) => (
-                          <div key={ticker} className="border-b border-primary-foreground/10 pb-2 last:border-b-0 last:pb-0">
-                            <p className="font-semibold">{ticker}</p>
-                            <p className="text-sm">{data.outlook} - {data.suggestion}</p>
-                          </div>
-                        ))}
-                      </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold">Stock Analysis</h3>
+                    <div className="bg-secondary p-4 rounded-lg space-y-2">
+                      {Object.entries(analysis.stock_analysis).map(([ticker, data]) => (
+                        <div key={ticker} className="border-b border-primary-foreground/10 pb-2 last:border-b-0 last:pb-0">
+                          <p className="font-semibold">{ticker}</p>
+                          <p className="text-sm">{data.outlook} - {data.suggestion}</p>
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  </div>
                 </div>
-                {analysis.recommendations && (
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-bold">Recommendations</h3>
-                    <div className="bg-secondary p-4 rounded-lg space-y-4">
-                      <div>
-                        <p className="font-semibold">Immediate Actions:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          {analysis.recommendations.immediate_actions.map((action, index) => (
-                            <li key={index}>{action}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <p><span className="font-semibold">Rebalancing:</span> {analysis.recommendations.rebalancing}</p>
-                      <p><span className="font-semibold">Cash Strategy:</span> {analysis.recommendations.cash_strategy}</p>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold">Recommendations</h3>
+                  <div className="bg-secondary p-4 rounded-lg space-y-4">
+                    <div>
+                      <p className="font-semibold">Immediate Actions:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {analysis.recommendations.immediate_actions.map((action, index) => (
+                          <li key={index}>{action}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p><span className="font-semibold">Rebalancing:</span> {analysis.recommendations.rebalancing}</p>
+                    <p><span className="font-semibold">Cash Strategy:</span> {analysis.recommendations.cash_strategy}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold">Market Context</h3>
+                  <div className="bg-secondary p-4 rounded-lg space-y-4">
+                    <p><span className="font-semibold">Current Environment:</span> {analysis.market_context.current_environment}</p>
+                    <div>
+                      <p className="font-semibold">Opportunities:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {analysis.market_context.opportunities.map((opportunity, index) => (
+                          <li key={index}>{opportunity}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Risks:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {analysis.market_context.risks.map((risk, index) => (
+                          <li key={index}>{risk}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
-                )}
-                {analysis.market_context && (
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-bold">Market Context</h3>
-                    <div className="bg-secondary p-4 rounded-lg space-y-4">
-                      <p><span className="font-semibold">Current Environment:</span> {analysis.market_context.current_environment}</p>
-                      <div>
-                        <p className="font-semibold">Opportunities:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          {analysis.market_context.opportunities.map((opportunity, index) => (
-                            <li key={index}>{opportunity}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Risks:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          {analysis.market_context.risks.map((risk, index) => (
-                            <li key={index}>{risk}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                </div>
               </>
             )}
           </div>
@@ -201,5 +190,4 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
     </Dialog>
   );
 };
-
 export default AnalyzePortfolioIndiaDialog;

@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from 'lucide-react';
 import { CardDescription } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -64,11 +64,12 @@ const AnalyzePortfolioDialog: React.FC<AnalyzePortfolioProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
+      const response = await axios.post<{ analysis: string }>(
         "https://aisupport-five.vercel.app/api/portfolio-analyze",
         { total, stocks, cash }
       );
-      setAnalysis(response.data);
+      const parsedAnalysis: AnalysisResult = JSON.parse(response.data.analysis);
+      setAnalysis(parsedAnalysis);
     } catch (error) {
       console.error("Unable to fetch analysis for portfolio.", error);
       setError("Analysis Failed. Please try again.");
@@ -85,7 +86,7 @@ const AnalyzePortfolioDialog: React.FC<AnalyzePortfolioProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button disabled variant="outline" className="text-xl font-bold">
+        <Button variant="outline" className="text-xl font-bold">
           Analyze Portfolio
         </Button>
       </DialogTrigger>
@@ -190,3 +191,4 @@ const AnalyzePortfolioDialog: React.FC<AnalyzePortfolioProps> = ({
 };
 
 export default AnalyzePortfolioDialog;
+

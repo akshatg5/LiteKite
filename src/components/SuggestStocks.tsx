@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from 'lucide-react';
 import { CardDescription } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -28,23 +28,23 @@ interface SuggestStocksProps {
 }
 
 interface SuggestionResult {
-  existing_holdings: {
-    advice: string | {[ticker : string] : string };
-  };
   portfolio_analysis: {
-    investment_style: string;
     risk_profile: string;
-    sector_exposure: string | { [sector: string]: string };
+    investment_style: string;
+    sector_exposure: string;
   };
   recommendations: {
     [key: string]: {
-      investment_duration: string;
-      name: string;
-      reason: string;
-      sector: string;
-      suggested_allocation: string;
       ticker: string;
+      name: string;
+      sector: string;
+      investment_duration: string;
+      reason: string;
+      suggested_allocation: string;
     };
+  };
+  existing_holdings: {
+    advice: string;
   };
 }
 
@@ -61,15 +61,12 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
+      const response = await axios.post<{ "analysis:": string }>(
         "https://aisupport-five.vercel.app/api/suggest-stocks",
         { total, stocks, cash }
       );
-      if (response.data && Object.keys(response.data).length > 0) {
-        setSuggestion(response.data);
-      } else {
-        throw new Error("Empty or invalid response received");
-      }
+      const parsedSuggestions: SuggestionResult = JSON.parse(response.data["analysis:"]);
+      setSuggestion(parsedSuggestions);
     } catch (error) {
       console.error("Unable to fetch analysis for portfolio.", error);
       setError(error instanceof Error ? error.message : "Analysis Failed. Please try again.");
@@ -88,41 +85,10 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
     setError(null);
   };
 
-  const renderSectorExposure = (sectorExposure: string | { [sector: string]: string }) => {
-    if (typeof sectorExposure === 'string') {
-      return <p>{sectorExposure}</p>;
-    } else {
-      return (
-        <ul className="list-disc list-inside pl-4">
-          {Object.entries(sectorExposure).map(([sector, exposure]) => (
-            <li key={sector}>{sector}: {exposure}</li>
-          ))}
-        </ul>
-      );
-    }
-  };
-
-  
-  const renderAdvice = (existing_holdings: string | { [ticker: string]: string }) => {
-    if (typeof existing_holdings === 'string') {
-      return <p>{existing_holdings}</p>;
-    } else {
-      return (
-        <ul className="list-disc list-inside pl-4">
-          {Object.entries(existing_holdings.advice).map(([ticker, advice]) => (
-            <li key={ticker}>{ticker}: {advice}</li>
-          ))}
-        </ul>
-      );
-    }
-  };
-
-
-
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button disabled variant="outline" className="text-xl font-bold">
+        <Button variant="outline" className="text-xl font-bold">
           Suggest Stocks
         </Button>
       </DialogTrigger>
@@ -130,7 +96,7 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
         <DialogHeader>
           <DialogTitle className="text-2xl">Stock recommendations</DialogTitle>
           <DialogDescription>
-            Get a comprehensive list of stock where you can deploy your remaining cash, curated by Gemini according to your current portfolio and risk appetite.
+            Get a comprehensive list of stocks where you can deploy your remaining cash, curated by Gemini according to your current portfolio and risk appetite.
           </DialogDescription>
         </DialogHeader>
 
@@ -153,18 +119,11 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
               <>
                 <div className="flex flex-col md:flex-col max-sm:flex-col gap-6">
                   <div className="space-y-4">
-                    <h3 className="text-xl font-bold">Existing Holdings Advice</h3>
-                    <div className="bg-secondary p-4 rounded-lg">
-                      <p>{renderAdvice(suggestion.existing_holdings.advice)}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
                     <h3 className="text-xl font-bold">Portfolio Analysis</h3>
                     <div className="bg-secondary p-4 rounded-lg">
                       <p><span className="font-semibold">Risk profile:</span> {suggestion.portfolio_analysis.risk_profile}</p>
                       <p><span className="font-semibold">Investment Style:</span> {suggestion.portfolio_analysis.investment_style}</p>
-                      <p><span className="font-semibold">Sector Exposure:</span></p>
-                      {renderSectorExposure(suggestion.portfolio_analysis.sector_exposure)}
+                      <p><span className="font-semibold">Sector Exposure:</span> {suggestion.portfolio_analysis.sector_exposure}</p>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -172,14 +131,19 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
                     <div className="bg-secondary p-4 rounded-lg space-y-2">
                       {Object.entries(suggestion.recommendations).map(([key, data]) => (
                         <div key={key} className="border-b border-primary-foreground/10 pb-2 last:border-b-0 last:pb-0">
-                          <p className="font-semibold">{data.ticker}</p>
-                          <p className="text-sm">{data.name}</p>
-                          <p className="text-sm">{data.sector}</p>
-                          <p className="text-sm"><b>Reason: </b> {data.reason}</p>
-                          <p className="text-sm"> <b>Suggested Allocation:</b> {data.suggested_allocation}</p>
-                          <p className="text-sm"> <b> Investment Duration:</b> {data.investment_duration}</p>
+                          <p className="font-semibold">{data.ticker} - {data.name}</p>
+                          <p className="text-sm"><b>Sector:</b> {data.sector}</p>
+                          <p className="text-sm"><b>Reason:</b> {data.reason}</p>
+                          <p className="text-sm"><b>Suggested Allocation:</b> {data.suggested_allocation}</p>
+                          <p className="text-sm"><b>Investment Duration:</b> {data.investment_duration}</p>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold">Existing Holdings Advice</h3>
+                    <div className="bg-secondary p-4 rounded-lg">
+                      <p>{suggestion.existing_holdings.advice}</p>
                     </div>
                   </div>
                 </div>
@@ -213,3 +177,4 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
 };
 
 export default SuggestStocks;
+

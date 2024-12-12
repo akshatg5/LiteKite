@@ -135,7 +135,7 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
 
   if (isLoading) {
     return <div className="flex justify-center">
-      <Loader2 />
+      <Loader2 className="animate-spin" />
     </div>;
   }
 
