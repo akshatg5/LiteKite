@@ -285,7 +285,7 @@ export default function IndianPortfolio() {
             <div>
               <p className="text-sm text-muted-foreground">Cash Balance</p>
               <p className="text-lg font-semibold">
-                ${portfolio.cash.toFixed(2)}
+              ₹{portfolio.cash.toFixed(2)}
               </p>
             </div>
             <div>
@@ -293,7 +293,7 @@ export default function IndianPortfolio() {
                 Total Account Value
               </p>
               <p className="text-lg font-semibold">
-                ${portfolio.total.toFixed(2)}
+              ₹{portfolio.total.toFixed(2)}
               </p>
             </div>
             </div>
