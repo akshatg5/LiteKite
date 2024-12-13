@@ -312,6 +312,7 @@ export const InteractiveStockChart: FC<InteractiveStockChartProps> = ({
           >
             {isPredicting ? "Predicting..." : "Predict"}
           </Button>
+          <p className="font-sm font-semibold">Powered By Gemini</p>
         </div>
       </CardFooter>
     </Card>
