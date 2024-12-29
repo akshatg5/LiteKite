@@ -71,7 +71,7 @@ export const Login = () => {
       } else {
         toast({
           title: "Error",
-          description: error.message || "An error occurred during login",
+          description:"Please try again!",
           variant: "destructive",
         });
       }

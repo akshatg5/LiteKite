@@ -9,17 +9,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Info} from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import url from "@/lib/url";
 import AnalyzeDialog from "@/components/AnalayzeDialog";
 import { InteractiveIndianStockChart } from "@/components/IndianStockGraph";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import IndiaFlag from "@/assets/india-flag-icon.svg"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import IndiaFlag from "@/assets/india-flag-icon.svg";
 import AnalyzePortfolioIndiaDialog from "@/components/AnalyzePortfolioDialogIndia";
 import SuggestStocksIndia from "@/components/SuggestStocksIndia";
+import { SidebarForIndiaStocks } from "@/components/SidebarForIndiaStocks";
+import SellDialogForIndianStocks from "@/components/SellDialogForIndianStocks";
 
 interface PortfolioStock {
   ticker: string;
@@ -39,39 +46,52 @@ interface Portfolio {
 export default function IndianPortfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [selectedStock, setSelectedStock] = useState<string>("");
-  const [isChartOpen,setIsChartOpen] = useState(false);
+  const [isChartOpen, setIsChartOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleStockClick = (ticker : string) => {
-    setSelectedStock(ticker)
-    setIsChartOpen(true)
-  }
+  const handleStockClick = (ticker: string) => {
+    setSelectedStock(ticker);
+    setIsChartOpen(true);
+  };
+
+  const handleIndianPortfolioUpdate = () => {
+    try {
+      fetchPortfolio();
+    } catch (error) {
+      toast({
+        title: "Unable to fetch portfolio",
+        description: "Please sign in again!",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchPortfolio = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${url}/indianportfolio`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      setPortfolio(response.data);
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        navigate("/login");
+      } else {
+        console.error("Error fetching portfolio:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch portfolio. Please sign in again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${url}/indianportfolio`, {
-          headers: {
-            Authorization: token,
-          },
-        });
-        setPortfolio(response.data);
-      } catch (error: any) {
-        if (error.response && error.response.status === 401) {
-          navigate("/login");
-        } else {
-          console.error("Error fetching portfolio:", error);
-          toast({
-            title: "Error",
-            description: "Failed to fetch portfolio. Please sign in again.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
     fetchPortfolio();
   }, [toast, navigate]);
 
@@ -197,22 +217,27 @@ export default function IndianPortfolio() {
               <TableHead>P&L</TableHead>
               <TableHead>Net Chg.</TableHead>
               <TableHead>AI Support</TableHead>
+              <TableHead>Sell</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {portfolio.stocks.map((stock) => {
-              const pnl = stock.current_value - stock.avg_purchase_price * stock.totalShares;
+              const pnl =
+                stock.current_value -
+                stock.avg_purchase_price * stock.totalShares;
               const netPercentChange = calculateNetChange(
                 stock.current_value,
                 stock.avg_purchase_price,
                 stock.totalShares
               );
-              
+
               return (
                 <TableRow key={stock.ticker}>
                   <TableCell className="flex items-center space-x-2">
                     <Button
-                      variant={selectedStock === stock.ticker ? "secondary" : "ghost"}
+                      variant={
+                        selectedStock === stock.ticker ? "secondary" : "ghost"
+                      }
                       onClick={() => handleStockClick(stock.ticker)}
                       className="w-full justify-start"
                     >
@@ -240,6 +265,13 @@ export default function IndianPortfolio() {
                       shares={stock.totalShares}
                     />
                   </TableCell>
+                  <TableCell>
+                    <SellDialogForIndianStocks
+                      stock={stock.ticker}
+                      totalShares={stock.totalShares}
+                      onComplete={handleIndianPortfolioUpdate}
+                    />
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -248,20 +280,31 @@ export default function IndianPortfolio() {
       </div>
     );
   };
-    
-    return (
-      <div className="space-y-6 mx-4 my-2">
+
+  return (
+    <main className="flex min-h-screen">
+      <SidebarForIndiaStocks
+        onToggle={setSidebarOpen}
+        onPortfolioUpdate={handleIndianPortfolioUpdate}
+      />
+      <div
+        className={`flex-grow p-4 transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "ml-[25%]" : "ml-0"
+        }`}
+      >
         <Card className="mx-2 mb-4 mt-2">
           <CardHeader>
             <CardTitle className="text-4xl max-sm:text-xl font-semibold flex justify-between">
               Holdings
               <img src={IndiaFlag} className="w-20 h-20" alt="India Flag" />
-              </CardTitle>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-sm text-muted-foreground">Total Investment</p>
+                <p className="text-sm text-muted-foreground">
+                  Total Investment
+                </p>
                 <h2 className="text-2xl font-bold">
                   ₹{totalInvestment.toFixed(2)}
                 </h2>
@@ -275,32 +318,44 @@ export default function IndianPortfolio() {
               <div className="mb-4">
                 <p className="text-sm text-muted-foreground">Total P&L</p>
                 <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
-                  ₹{totalPnL.toFixed(2)} ({totalPnL && ((totalPnL / totalInvestment) * 100).toFixed(2) || 0}%)
+                  ₹{totalPnL.toFixed(2)} (
+                  {(totalPnL &&
+                    ((totalPnL / totalInvestment) * 100).toFixed(2)) ||
+                    0}
+                  %)
                 </h2>
               </div>
             </div>
             <div className="flex gap-4 justify-between max-sm:flex-col">
-            <div className="flex space-x-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Cash Balance</p>
-              <p className="text-lg font-semibold">
-              ₹{portfolio.cash.toFixed(2)}
-              </p>
+              <div className="flex space-x-5">
+                <div>
+                  <p className="text-sm text-muted-foreground">Cash Balance</p>
+                  <p className="text-lg font-semibold">
+                    ₹{portfolio.cash.toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Total Account Value
+                  </p>
+                  <p className="text-lg font-semibold">
+                    ₹{portfolio.total.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
+                <AnalyzePortfolioIndiaDialog
+                  cash={portfolio.cash}
+                  total={portfolio.total}
+                  stocks={portfolio.stocks || []}
+                />
+                <SuggestStocksIndia
+                  cash={portfolio.cash}
+                  stocks={portfolio.stocks || []}
+                  total={portfolio.total}
+                />
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Total Account Value
-              </p>
-              <p className="text-lg font-semibold">
-              ₹{portfolio.total.toFixed(2)}
-              </p>
-            </div>
-            </div>
-            <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
-          <AnalyzePortfolioIndiaDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
-          <SuggestStocksIndia cash={portfolio.cash} stocks={portfolio.stocks || []} total={portfolio.total} />
-            </div>
-          </div>
           </CardContent>
         </Card>
         <Card>
@@ -308,27 +363,31 @@ export default function IndianPortfolio() {
             <MobilePortfolio />
             <DesktopPortfolio />
             {portfolio.stocks.length === 0 && (
-              <div className="flex justify-center items-center">
-                No stocks traded yet!
+              <div className="flex flex-col justify-center items-center py-5">
+                <p className="font-semibold">
+                  You've got no stocks! We provide ₹10000 as the starting
+                  amount.
+                </p>
+                <p>Please go ahead and use that to buy some stocks!</p>
               </div>
             )}
           </CardContent>
         </Card>
-        <Card className="flex space-x-2 px-4 py-2 mb-10">
-          <AlertCircle color="red"/>
+        <Card className="flex space-x-2 px-4 py-2 my-5">
+          <AlertCircle color="red" />
           <p>Click on any stock to get the daily chart!</p>
         </Card>
         <Dialog open={isChartOpen} onOpenChange={setIsChartOpen}>
-        <DialogContent className="max-w-7xl max-sm:max-w-8xl w-full h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Stock Chart: {selectedStock}</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 min-h-0">
-            <InteractiveIndianStockChart ticker={selectedStock} />
-          </div>
-        </DialogContent>
-      </Dialog>
-
+          <DialogContent className="max-w-7xl max-sm:max-w-8xl w-full h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Stock Chart: {selectedStock}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 min-h-0">
+              <InteractiveIndianStockChart ticker={selectedStock} />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-    );
-  }
+    </main>
+  );
+}

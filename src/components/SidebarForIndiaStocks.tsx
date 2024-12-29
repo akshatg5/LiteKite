@@ -3,12 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { topUSStocks } from "@/data/TopUSStocksList";
 import { Loader2, Menu } from "lucide-react";
 import axios from "axios";
 import url from "@/lib/url";
 import { Badge } from "./ui/badge";
 import { Link } from "react-router-dom";
+import { topIndianStocks } from "@/data/TopIndianStocksList";
 
 interface Stock {
   ticker: string;
@@ -21,14 +21,14 @@ interface priceData {
   price: number;
 }
 
-export function SidebarForUSAStocks({
+export function SidebarForIndiaStocks({
   onToggle,
   onPortfolioUpdate,
 }: {
   onToggle: (open: boolean) => void;
   onPortfolioUpdate: () => void;
 }) {
-  const [stocks, setStocks] = useState<Stock[]>(topUSStocks);
+  const [stocks, setStocks] = useState<Stock[]>(topIndianStocks);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const [open, setOpen] = useState(true);
@@ -38,14 +38,14 @@ export function SidebarForUSAStocks({
 
   const handleStockSearch = async (query: string) => {
     if (!query) {
-        setStocks(topUSStocks);
+        setStocks(topIndianStocks);
         return
     }
 
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${url}/ussearch?q=${query}&limit=5`, {
+      const res = await axios.get(`${url}/indiansearch?q=${query}&limit=5`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
@@ -78,9 +78,9 @@ useEffect(() => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${url}/quote`,
+        `${url}/indianquote`,
         {
-          symbol: ticker,
+          symbol: ticker.split('.')[0],
         },
         {
           headers: {
@@ -110,9 +110,9 @@ useEffect(() => {
         });
       }
       await axios.post(
-        `${url}/buy`,
+        `${url}/buyindianstock`,
         {
-          symbol: ticker,
+          symbol: ticker.split('.')[0],
           shares: parseInt(shares[ticker] || "0"),
         },
         {
@@ -180,11 +180,11 @@ useEffect(() => {
               className={`p-4 border-b border-border ${open ? "" : "hidden"}`}
             >
               <div className="font-bold flex justify-between">
-                <h1>{stock.ticker}</h1>
+                <h1>{stock.ticker.split('.')[0]}</h1>
                 {stock.ticker == price?.symbol && (
                   <Badge>
                     <span className="text-xl animate-pulse">
-                      LTP : ${price.price ? price.price : 0}
+                      LTP : ₹{price.price ? price.price : 0}
                     </span>
                   </Badge>
                 )}

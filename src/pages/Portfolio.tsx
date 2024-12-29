@@ -26,6 +26,7 @@ import UsFlag from "@/assets/united-states-flag-icon.svg";
 import AnalayzePortfolioDialog from "@/components/AnalyzePortfolioDialog";
 import SuggestStocks from "@/components/SuggestStocks";
 import { SidebarForUSAStocks } from "@/components/SidebarForUSAStocks";
+import SellDialog from "@/components/SellDialog";
 
 interface PortfolioStock {
   ticker: string;
@@ -226,6 +227,7 @@ const Portfolio = () => {
               <TableHead>P&L</TableHead>
               <TableHead>Net Chg.</TableHead>
               <TableHead>AI Support</TableHead>
+              <TableHead>Sell</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -270,6 +272,13 @@ const Portfolio = () => {
                       avg_price={stock.avg_purcase_price}
                       ltp={stock.current_price}
                       shares={stock.totalshares}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <SellDialog
+                    stock={stock.ticker}
+                    totalShares={stock.totalshares}
+                    onComplete={handlePortfolioUpdate}
                     />
                   </TableCell>
                 </TableRow>
