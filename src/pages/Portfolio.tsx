@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo} from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -14,23 +14,18 @@ import { Link, useNavigate } from "react-router-dom";
 import url from "@/lib/url";
 import { InteractiveStockChart } from "@/components/Graph";
 import { Button } from "@/components/ui/button";
-import {
-  AlertCircle,
-  Info,
-} from "lucide-react";
+import { AlertCircle, Info, Loader2 } from 'lucide-react';
 import AnalyzeDialog from "@/components/AnalayzeDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-// import BuyDialog from "@/components/BuyDialog";
-// import StockActionsDropdown from "@/components/StockActionsDropdown";
-import UsFlag from '@/assets/united-states-flag-icon.svg'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import UsFlag from "@/assets/united-states-flag-icon.svg";
 import AnalayzePortfolioDialog from "@/components/AnalyzePortfolioDialog";
 import SuggestStocks from "@/components/SuggestStocks";
+import { SidebarForUSAStocks } from "@/components/SidebarForUSAStocks";
 
 interface PortfolioStock {
   ticker: string;
@@ -48,16 +43,18 @@ interface Portfolio {
 
 const Portfolio = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
-  //@ts-ignore
-  const [symbol, setSymbol] = useState("");
-  const [isChartOpen,setIsChartOpen] = useState(false);
+  const [isChartOpen, setIsChartOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState(
     portfolio?.stocks[0]?.ticker || "AAPL"
   );
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading,setLoading] = useState(false)
   const { toast } = useToast();
   const navigate = useNavigate();
+
   const fetchPortfolio = async () => {
     try {
+      setLoading(true)
       const token = localStorage.getItem("token");
       const response = await axios.get(`${url}/portfolio`, {
         headers: {
@@ -79,6 +76,9 @@ const Portfolio = () => {
         description: "Failed to fetch portfolio. Please sign in again.",
         variant: "destructive",
       });
+      navigate('/login')
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -108,10 +108,23 @@ const Portfolio = () => {
     return "text-gray-500";
   };
 
-  const handleStockClick = (ticker : string) => {
-    setSelectedStock(ticker)
-    setIsChartOpen(true)
-  }
+  const handleStockClick = (ticker: string) => {
+    setSelectedStock(ticker);
+    setIsChartOpen(true);
+  };
+
+  const handlePortfolioUpdate = () => {
+    try {
+      fetchPortfolio();
+    } catch (error) {
+      toast({
+        title : "Unable to fetch the portfolio data",
+        variant : "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  };
 
   const calculateNetChange = (
     currentValue: number,
@@ -127,7 +140,7 @@ const Portfolio = () => {
   if (!portfolio)
     return (
       <div className="flex flex-col justify-center items-center min-h-screen min-w-screen mx-auto">
-        <img src={UsFlag} className="w-24 h-24" />
+        <img src={UsFlag} className="w-24 h-24" alt="US Flag" />
         Loading...
       </div>
     );
@@ -240,7 +253,6 @@ const Portfolio = () => {
                     <Link to={`/info/${stock.ticker}`}>
                       <Info width={20} height={20} />
                     </Link>
-                  {/* <StockActionsDropdown stock={stock.ticker} totalShares={stock.totalshares} onActionComplete={handleActionComplete} /> */}
                   </TableCell>
                   <TableCell>{stock.totalshares}</TableCell>
                   <TableCell>${stock.avg_purcase_price.toFixed(2)}</TableCell>
@@ -270,87 +282,91 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="space-y-6 p-5">
-      <Card className="mx-2 mb-4 mt-2">
-        <CardHeader>
-          <CardTitle className="text-4xl max-sm:text-md font-semibold flex justify-between">
-            Holdings
-            <img src={UsFlag} className="w-20 h-20" alt="US Flag" />
+    <main className="flex min-h-screen">
+      <SidebarForUSAStocks onToggle={setSidebarOpen} onPortfolioUpdate={handlePortfolioUpdate} />
+      <div className={`flex-grow p-4 transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-[25%]' : 'ml-0'}`}>
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="text-4xl max-sm:text-md font-semibold flex justify-between items-center">
+              Holdings  {loading && <Loader2 className="animate-spin" />}
+              <img src={UsFlag} className="w-20 h-20" alt="US Flag" />
             </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Investment</p>
-              <h2 className="text-2xl font-bold">
-                ${totalInvestment.toFixed(2)}
-              </h2>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Investment</p>
+                <h2 className="text-2xl font-bold">${totalInvestment.toFixed(2)}</h2>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Current Value</p>
+                <h2 className="text-2xl font-bold">${totalCurrentValue.toFixed(2)}</h2>
+              </div>
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground">Total P&L</p>
+                <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
+                  ${totalPnL.toFixed(2)} ({totalInvestment && (((totalPnL / totalInvestment) * 100).toFixed(2) || 0)}%)
+                </h2>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Current Value</p>
-              <h2 className="text-2xl font-bold">
-                ${totalCurrentValue.toFixed(2)}
-              </h2>
+            <div className="flex gap-4 justify-between max-sm:flex-col">
+              <div className="flex space-x-5">
+                <div>
+                  <p className="text-sm text-muted-foreground">Cash Balance</p>
+                  <p className="text-lg font-semibold">${portfolio.cash.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Account Value</p>
+                  <p className="text-lg font-semibold">${portfolio.total.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
+                <AnalayzePortfolioDialog
+                  cash={portfolio.cash}
+                  total={portfolio.total}
+                  stocks={portfolio.stocks || []}
+                />
+                <SuggestStocks
+                  cash={portfolio.cash}
+                  stocks={portfolio.stocks || []}
+                  total={portfolio.total}
+                />
+              </div>
             </div>
-            <div className="mb-4">
-              <p className="text-sm text-muted-foreground">Total P&L</p>
-              <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL) || 0 }`}>
-                ${totalPnL.toFixed(2)} ({totalInvestment && (((totalPnL / totalInvestment) * 100).toFixed(2) || 0) }%)
-              </h2>
-            </div>
-          </div>
-          <div className="flex gap-4 justify-between max-sm:flex-col">
-            <div className="flex space-x-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Cash Balance</p>
-              <p className="text-lg font-semibold">
-                ${portfolio.cash.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Total Account Value
-              </p>
-              <p className="text-lg font-semibold">
-                ${portfolio.total.toFixed(2)}
-              </p>
-            </div>
-            </div>
-            <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
-          <AnalayzePortfolioDialog cash={portfolio.cash} total={portfolio.total} stocks={portfolio.stocks || []} />
-          <SuggestStocks cash={portfolio.cash} stocks={portfolio.stocks || []} total={portfolio.total} />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <MobilePortfolio />
-          <DesktopPortfolio />
-          {portfolio.stocks.length === 0 && (
-            <div className="flex justify-center items-center">
-              No stocks traded yet!
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      <Card className="flex space-x-2 px-4 py-2 mb-10">
-          <AlertCircle color="red"/>
-          <p>Click on any stock to get the daily chart!</p>
+          </CardContent>
         </Card>
-
-      <Dialog open={isChartOpen} onOpenChange={setIsChartOpen}>
-        <DialogContent className="max-w-7xl max-sm:max-w-8xl w-full h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Stock Chart: {selectedStock}</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 min-h-0">
-            <InteractiveStockChart ticker={selectedStock} />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        <Card>
+          <CardContent>
+            <MobilePortfolio />
+            <DesktopPortfolio />
+            {portfolio.stocks.length === 0 && (
+              <div className="flex flex-col justify-center items-center py-5">
+                <p className="font-semibold">You've got no stocks! We provide $10000 as the starting amount.</p>
+                <p>Please go ahead and use that to buy some stocks!</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        {portfolio.stocks.length > 0 && (
+          <Card className="flex space-x-2 px-4 py-2 mt-4">
+            <AlertCircle color="red" />
+            <p>Click on any stock to get the daily chart!</p>
+          </Card>
+        )}
+        <Dialog open={isChartOpen} onOpenChange={setIsChartOpen}>
+          <DialogContent className="max-w-7xl max-sm:max-w-8xl w-full h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Stock Chart: {selectedStock}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 min-h-0">
+              <InteractiveStockChart ticker={selectedStock} />
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </main>
   );
 };
 
 export default Portfolio;
+
