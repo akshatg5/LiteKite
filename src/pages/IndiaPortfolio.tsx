@@ -275,8 +275,7 @@ export default function IndianPortfolio() {
               <div className="mb-4">
                 <p className="text-sm text-muted-foreground">Total P&L</p>
                 <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
-                  ₹{totalPnL.toFixed(2)} (
-                  {((totalPnL / totalInvestment) * 100).toFixed(2)}%)
+                  ₹{totalPnL.toFixed(2)} ({totalPnL && ((totalPnL / totalInvestment) * 100).toFixed(2) || 0}%)
                 </h2>
               </div>
             </div>

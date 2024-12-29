@@ -86,7 +86,7 @@ const AnalyzePortfolioDialog: React.FC<AnalyzePortfolioProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-xl font-bold">
+        <Button variant="outline" disabled={stocks.length === 0} className="text-xl font-bold">
           Analyze Portfolio
         </Button>
       </DialogTrigger>

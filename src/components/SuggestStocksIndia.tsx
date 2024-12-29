@@ -98,8 +98,8 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-xl font-bold">
-          Suggest Stocks
+        <Button variant="outline" disabled={stocks.length === 0} className="text-xl font-bold">
+        {stocks.length > 0 ? "Suggest Stocks" : "Buy Some Stocks First!!"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[950px] max-w-full h-[90vh] flex flex-col">
