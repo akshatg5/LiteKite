@@ -25,7 +25,7 @@ import {
 import UsFlag from "@/assets/united-states-flag-icon.svg";
 import AnalayzePortfolioDialog from "@/components/AnalyzePortfolioDialog";
 import SuggestStocks from "@/components/SuggestStocks";
-// import { SidebarForUSAStocks } from "@/components/SidebarForUSAStocks";
+import { SidebarForUSAStocks } from "@/components/SidebarForUSAStocks";
 import SellDialog from "@/components/SellDialog";
 
 interface PortfolioStock {
@@ -48,7 +48,7 @@ const Portfolio = () => {
   const [selectedStock, setSelectedStock] = useState(
     portfolio?.stocks[0]?.ticker || "AAPL"
   );
-  // const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading,setLoading] = useState(false)
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -57,9 +57,10 @@ const Portfolio = () => {
     try {
       setLoading(true)
       const token = localStorage.getItem("token");
+      console.log(token)
       const response = await axios.get(`${url}/portfolio`, {
         headers: {
-          Authorization: token,
+          Authorization: `${token}`,
         },
       });
       setPortfolio(response.data);
@@ -292,8 +293,8 @@ const Portfolio = () => {
 
   return (
     <main className="flex min-h-screen">
-      {/* <SidebarForUSAStocks onToggle={setSidebarOpen} onPortfolioUpdate={handlePortfolioUpdate} /> */}
-      <div className={`flex-grow p-4 transition-all duration-300 ease-in-out`}>
+      <SidebarForUSAStocks onToggle={setSidebarOpen} onPortfolioUpdate={handlePortfolioUpdate} />
+      <div className={`flex-grow p-4 transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-[25%]' : 'ml-0'}`}>
         <Card className="mb-4">
           <CardHeader>
             <CardTitle className="text-4xl max-sm:text-md font-semibold flex justify-between items-center">
