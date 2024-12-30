@@ -44,7 +44,7 @@ const SellDialogForIndianStocks: React.FC<SellDialogProps> = ({ stock, totalShar
       const token = localStorage.getItem("token")
       const response = await axios.post(
         `${url}/sellindianstock`,
-        { symbol: stock, shares: parseInt(shares) },
+        { symbol: stock.split('.')[0], shares: parseInt(shares) },
         {
           headers: {
             "Content-Type": "application/json",
