@@ -35,11 +35,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setAuthToken = (accessToken: string) => {
-    const bearerToken = `Bearer ${accessToken}`;
+    const bearerToken = accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`;
     setToken(bearerToken);
     setIsAuthenticated(true);
     localStorage.setItem("token", bearerToken);
-    
     axios.defaults.headers.common['Authorization'] = bearerToken;
   };
 
