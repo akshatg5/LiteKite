@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setAuthToken = (accessToken: string) => {
-    const bearerToken = `${accessToken}`;
+    const bearerToken = `Bearer ${accessToken}`;
     setToken(bearerToken);
     setIsAuthenticated(true);
     localStorage.setItem("token", bearerToken);

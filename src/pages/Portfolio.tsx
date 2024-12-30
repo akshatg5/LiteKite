@@ -60,7 +60,7 @@ const Portfolio = () => {
       console.log(token)
       const response = await axios.get(`${url}/portfolio`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       });
       setPortfolio(response.data);
