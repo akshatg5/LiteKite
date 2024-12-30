@@ -1,6 +1,6 @@
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -60,10 +60,6 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    analyzePortfolio()
-  },[])
-
   const analyzePortfolio = async () => {
     setLoading(true);
     setError(null);
@@ -102,7 +98,7 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={stocks.length === 0} className="text-xl font-bold">
+        <Button variant="outline" onClick={analyzePortfolio} disabled={stocks.length === 0} className="text-xl font-bold">
         {stocks.length > 0 ? "Suggest Stocks" : "Buy Some Stocks First!!"}
         </Button>
       </DialogTrigger>
@@ -126,7 +122,10 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                 <p>Our AI services seem to be misbehaving!</p>
+                 <p>Please try again after a while!</p>
+                </AlertDescription>
               </Alert>
             )}
             {suggestion && (

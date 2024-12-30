@@ -112,7 +112,10 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                 <p>Our AI services seem to be misbehaving!</p>
+                 <p>Please try again after a while!</p>
+                </AlertDescription>
               </Alert>
             )}
             {suggestion && (
