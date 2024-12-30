@@ -1,6 +1,6 @@
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -59,6 +59,10 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
   const [suggestion, setSuggestion] = useState<SuggestionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    analyzePortfolio()
+  },[])
 
   const analyzePortfolio = async () => {
     setLoading(true);
@@ -167,16 +171,6 @@ const SuggestStocksIndia: React.FC<SuggestStocksPropsIndia> = ({
           <div className="space-x-2">
             <Button onClick={clearResults} variant="outline" disabled={loading || (!suggestion && !error)}>
               Clear Results
-            </Button>
-            <Button onClick={analyzePortfolio} disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                "Suggest Stocks"
-              )}
             </Button>
           </div>
         </DialogFooter>

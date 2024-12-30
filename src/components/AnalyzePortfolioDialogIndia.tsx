@@ -87,7 +87,7 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={stocks.length === 0} className="text-xl font-bold">
+        <Button variant="outline" onClick={analyzePortfolio} disabled={stocks.length === 0} className="text-xl font-bold">
           Analyze Portfolio    
         </Button>
       </DialogTrigger>
@@ -181,9 +181,6 @@ const AnalyzePortfolioIndiaDialog: React.FC<AnalyzePortfolioProps> = ({
 
         <DialogFooter className="flex items-center justify-between border-t pt-4 mt-4">
           <CardDescription>Powered By Gemini</CardDescription>
-          <Button onClick={analyzePortfolio} disabled={loading}>
-            {loading ? "Analyzing..." : "Analyze Portfolio"}
-          </Button>
         </DialogFooter>
         <DialogDescription>Beta phase</DialogDescription>
       </DialogContent>

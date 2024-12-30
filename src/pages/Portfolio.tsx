@@ -191,13 +191,14 @@ const Portfolio = () => {
               </p>
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex space-x-2">
             <AnalyzeDialog
               stock={stock.ticker}
               avg_price={stock.avg_purcase_price}
               ltp={stock.current_price}
               shares={stock.totalshares}
             />
+            <SellDialog stock={stock.ticker} totalShares={stock.totalshares} onComplete={handlePortfolioUpdate} />
           </div>
         </CardContent>
       </Card>

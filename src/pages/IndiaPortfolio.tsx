@@ -180,12 +180,17 @@ export default function IndianPortfolio() {
               </p>
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex space-x-2">
             <AnalyzeDialog
               stock={stock.ticker}
               avg_price={stock.avg_purchase_price}
               ltp={stock.current_price}
               shares={stock.totalShares}
+            />
+            <SellDialogForIndianStocks
+            onComplete={handleIndianPortfolioUpdate}
+            stock={stock.ticker}
+            totalShares={stock.totalShares}
             />
           </div>
         </CardContent>

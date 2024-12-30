@@ -1,6 +1,6 @@
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
-import { useState } from "react";
+import {useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -88,7 +88,7 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={stocks.length === 0} className="text-xl font-bold">
+        <Button variant="outline" disabled={stocks.length === 0} onClick={analyzePortfolio} className="text-xl font-bold">
           {stocks.length > 0 ? "Suggest Stocks" : "Buy Some Stocks First!!"}
         </Button>
       </DialogTrigger>
@@ -157,16 +157,6 @@ const SuggestStocks: React.FC<SuggestStocksProps> = ({
           <div className="space-x-2">
             <Button onClick={clearResults} variant="outline" disabled={loading || (!suggestion && !error)}>
               Clear Results
-            </Button>
-            <Button onClick={analyzePortfolio} disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                "Suggest Stocks"
-              )}
             </Button>
           </div>
         </DialogFooter>
