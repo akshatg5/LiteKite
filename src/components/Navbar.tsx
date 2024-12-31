@@ -83,22 +83,24 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="text-xl font-bold">LiteKite</Link>
           </div>
+          
           <div className="flex items-center space-x-4">
-            {navItems.map((item) => (
+            {isAuthenticated ? navItems.map((item) => (
               <NavLink key={item.to} to={item.to} label={item.label} />
-            ))}
-            <div className="flex items-center space-x-2">
-              { isAuthenticated ? <Button onClick={handleLogOut}>Logout</Button> : 
-              <Link to={'/login'} >
+            )) : 
+            <div className='flex space-x-2'>
+            <Link to={'/login'} >
               <Button>
                 Sign In
                 </Button>
               </Link>
-                }
-              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-                {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-              </Button>
-            </div>
+            <Link to={'/register'} >
+              <Button>
+                Sign Up
+                </Button>
+              </Link>
+              </div>
+            }
           </div>
         </div>
       </div>

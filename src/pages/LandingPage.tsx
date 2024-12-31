@@ -33,7 +33,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-400 via-purple-500 to-orange-500">
+    <div className="bg-gradient-to-br from-red-400 via-purple-500 to-orange-500">
       <nav className="flex justify-between items-center p-6">
         <div className="text-white text-2xl font-bold">Litekite</div>
         <div className="flex space-x-4">

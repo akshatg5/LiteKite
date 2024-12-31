@@ -34,7 +34,7 @@ const App = () => {
           <Analytics />
           <div className="min-h-screen bg-background text-foreground">
            <Navbar /> 
-            <main className="container mx-auto">
+            <main className="mx-auto">
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
