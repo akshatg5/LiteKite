@@ -56,21 +56,34 @@ const Navbar = () => {
       </div>
       {isOpen && (
         <div className="px-2 pt-2 pb-3 space-y-1 flex flex-col sm:px-3">
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} label={item.label} onClick={() => setIsOpen(false)} />
-          ))}
-          <div className="flex space-x-2 mt-2">
-          <Button onClick={handleLogOut} className="flex-1">Logout</Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="flex-shrink-0"
-              aria-label="Toggle theme"
-            >
-              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-            </Button>
-          </div>
+          {isAuthenticated ? (
+            <>
+              {navItems.map((item) => (
+                <NavLink key={item.to} to={item.to} label={item.label} onClick={() => setIsOpen(false)} />
+              ))}
+              <div className="flex space-x-2 mt-2">
+                <Button onClick={handleLogOut} className="flex-1">Logout</Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  className="flex-shrink-0"
+                  aria-label="Toggle theme"
+                >
+                  {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex space-x-2">
+              <Link to="/login">
+                <Button>Sign In</Button>
+              </Link>
+              <Link to="/register">
+                <Button>Sign Up</Button>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
