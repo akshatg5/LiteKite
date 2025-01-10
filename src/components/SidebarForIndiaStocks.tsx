@@ -34,7 +34,7 @@ export function SidebarForIndiaStocks({
   const [open, setOpen] = useState(true);
   const [shares, setShares] = useState<Record<string, string>>({});
   const [price, setPrice] = useState<priceData | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<Record<string,boolean>>({});
 
   const handleStockSearch = async (query: string) => {
     if (!query) {
@@ -43,7 +43,7 @@ export function SidebarForIndiaStocks({
     }
 
     try {
-      setLoading(true);
+      setLoading((prev) => ({...prev,search:true}));
       const token = localStorage.getItem("token");
       const res = await axios.get(`${url}/indiansearch?q=${query}&limit=5`, {
         headers: {
@@ -62,7 +62,7 @@ export function SidebarForIndiaStocks({
         variant : "destructive"
       });
     } finally {
-      setLoading(false);
+      setLoading((prev) => ({...prev,search:false}));
     }
   };
 
@@ -74,7 +74,7 @@ useEffect(() => {
 },[searchQuery])
 
   const handleGetPrice = async (ticker: string) => {
-    setLoading(true);
+    setLoading((prev) => ({...prev,[ticker]:true}));
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
@@ -96,13 +96,13 @@ useEffect(() => {
         description: `Unable to fetch price of ${ticker}`,
       });
     } finally {
-      setLoading(false);
+      setLoading((prev) => ({...prev,[ticker]:false}));
     }
   };
 
   const handleBuy = async (ticker: string) => {
     try {
-        setLoading(true)
+        setLoading((prev) => ({...prev,[ticker]:true}))
       const token = localStorage.getItem("token");
       if (!parseInt(shares[ticker])) {
         toast({
@@ -133,7 +133,7 @@ useEffect(() => {
           variant: "destructive",
     })
     } finally {
-        setLoading(false)
+        setLoading((prev) => ({...prev,[ticker]:false}))
     }
   };
 
@@ -171,7 +171,7 @@ useEffect(() => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {loading && <Loader2 className="animate-spin" />}
+          {loading.search && <Loader2 className="animate-spin" />}
         </div>
         <ScrollArea className="flex-grow">
           {stocks.map((stock) => (
@@ -202,11 +202,11 @@ useEffect(() => {
                   }
                   placeholder="Shares"
                 />
-                <Button size="sm" onClick={() => handleGetPrice(stock.ticker)}>
-                  {loading ? "Loading..." : "Get Price"}
+                <Button disabled={loading[stock.ticker]} size="sm" onClick={() => handleGetPrice(stock.ticker)}>
+                  {loading[stock.ticker] ? "Loading..." : "Get Price"}
                 </Button>
-                <Button size="sm" onClick={() => handleBuy(stock.ticker)}>
-                  {loading ? <Loader2 className="animate-spin" /> : 'Buy' }
+                <Button disabled={loading[stock.ticker]} size="sm" onClick={() => handleBuy(stock.ticker)}>
+                  {loading[stock.ticker] ? <Loader2 className="animate-spin" /> : 'Buy' }
                 </Button>
               </div>
             </div>

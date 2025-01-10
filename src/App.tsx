@@ -23,9 +23,7 @@ const ProtectedRoute = ({ children } : {children : React.ReactNode}) => {
 };
 
 const App = () => {
-  const env = import.meta.env.ENV
   const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID
-  console.log(env)
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <ThemeProvider>

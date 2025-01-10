@@ -57,7 +57,6 @@ const Portfolio = () => {
     try {
       setLoading(true)
       const token = localStorage.getItem("token");
-      console.log(token)
       const response = await axios.get(`${url}/portfolio`, {
         headers: {
           Authorization: `${token}`,
