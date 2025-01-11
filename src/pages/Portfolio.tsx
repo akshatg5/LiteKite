@@ -14,7 +14,7 @@ import { Link, useNavigate } from "react-router-dom";
 import url from "@/lib/url";
 import { InteractiveStockChart } from "@/components/Graph";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Info, Loader2 } from 'lucide-react';
+import { AlertCircle, Info, Loader2 } from "lucide-react";
 import AnalyzeDialog from "@/components/AnalayzeDialog";
 import {
   Dialog,
@@ -27,6 +27,12 @@ import AnalayzePortfolioDialog from "@/components/AnalyzePortfolioDialog";
 import SuggestStocks from "@/components/SuggestStocks";
 import { SidebarForUSAStocks } from "@/components/SidebarForUSAStocks";
 import SellDialog from "@/components/SellDialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PortfolioStock {
   ticker: string;
@@ -49,13 +55,13 @@ const Portfolio = () => {
     portfolio?.stocks[0]?.ticker || "AAPL"
   );
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const fetchPortfolio = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(`${url}/portfolio`, {
         headers: {
@@ -77,9 +83,9 @@ const Portfolio = () => {
         description: "Failed to fetch portfolio. Please sign in again.",
         variant: "destructive",
       });
-      navigate('/login')
+      navigate("/login");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -119,11 +125,11 @@ const Portfolio = () => {
       fetchPortfolio();
     } catch (error) {
       toast({
-        title : "Unable to fetch the portfolio data",
-        variant : "destructive"
-      })
+        title: "Unable to fetch the portfolio data",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -197,7 +203,11 @@ const Portfolio = () => {
               ltp={stock.current_price}
               shares={stock.totalshares}
             />
-            <SellDialog stock={stock.ticker} totalShares={stock.totalshares} onComplete={handlePortfolioUpdate} />
+            <SellDialog
+              stock={stock.ticker}
+              totalShares={stock.totalshares}
+              onComplete={handlePortfolioUpdate}
+            />
           </div>
         </CardContent>
       </Card>
@@ -244,15 +254,26 @@ const Portfolio = () => {
               return (
                 <TableRow key={stock.ticker}>
                   <TableCell className="flex items-center space-x-2">
-                    <Button
-                      variant={
-                        selectedStock === stock.ticker ? "secondary" : "ghost"
-                      }
-                      onClick={() => handleStockClick(stock.ticker)}
-                      className="w-full justify-start"
-                    >
-                      {stock.ticker}
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={
+                              selectedStock === stock.ticker
+                                ? "secondary"
+                                : "ghost"
+                            }
+                            onClick={() => handleStockClick(stock.ticker)}
+                            className="w-full justify-start"
+                          >
+                            {stock.ticker}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Click to get the daily Chart.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <Link to={`/info/${stock.ticker}`}>
                       <Info width={20} height={20} />
                     </Link>
@@ -277,9 +298,9 @@ const Portfolio = () => {
                   </TableCell>
                   <TableCell>
                     <SellDialog
-                    stock={stock.ticker}
-                    totalShares={stock.totalshares}
-                    onComplete={handlePortfolioUpdate}
+                      stock={stock.ticker}
+                      totalShares={stock.totalshares}
+                      onComplete={handlePortfolioUpdate}
                     />
                   </TableCell>
                 </TableRow>
@@ -293,29 +314,45 @@ const Portfolio = () => {
 
   return (
     <main className="flex min-h-screen">
-      <SidebarForUSAStocks onToggle={setSidebarOpen} onPortfolioUpdate={handlePortfolioUpdate} />
-      <div className={`flex-grow p-4 transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-[25%]' : 'ml-0'}`}>
+      <SidebarForUSAStocks
+        onToggle={setSidebarOpen}
+        onPortfolioUpdate={handlePortfolioUpdate}
+      />
+      <div
+        className={`flex-grow p-4 transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "ml-[25%]" : "ml-0"
+        }`}
+      >
         <Card className="mb-4">
           <CardHeader>
             <CardTitle className="text-4xl max-sm:text-md font-semibold flex justify-between items-center">
-              Holdings  {loading && <Loader2 className="animate-spin" />}
+              Holdings {loading && <Loader2 className="animate-spin" />}
               <img src={UsFlag} className="w-20 h-20" alt="US Flag" />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-sm text-muted-foreground">Total Investment</p>
-                <h2 className="text-2xl font-bold">${totalInvestment.toFixed(2)}</h2>
+                <p className="text-sm text-muted-foreground">
+                  Total Investment
+                </p>
+                <h2 className="text-2xl font-bold">
+                  ${totalInvestment.toFixed(2)}
+                </h2>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Current Value</p>
-                <h2 className="text-2xl font-bold">${totalCurrentValue.toFixed(2)}</h2>
+                <h2 className="text-2xl font-bold">
+                  ${totalCurrentValue.toFixed(2)}
+                </h2>
               </div>
               <div className="mb-4">
                 <p className="text-sm text-muted-foreground">Total P&L</p>
                 <h2 className={`text-2xl font-bold ${getPnlClass(totalPnL)}`}>
-                  ${totalPnL.toFixed(2)} ({totalInvestment && (((totalPnL / totalInvestment) * 100).toFixed(2) || 0)}%)
+                  ${totalPnL.toFixed(2)} (
+                  {totalInvestment &&
+                    (((totalPnL / totalInvestment) * 100).toFixed(2) || 0)}
+                  %)
                 </h2>
               </div>
             </div>
@@ -323,11 +360,17 @@ const Portfolio = () => {
               <div className="flex space-x-5">
                 <div>
                   <p className="text-sm text-muted-foreground">Cash Balance</p>
-                  <p className="text-lg font-semibold">${portfolio.cash.toFixed(2)}</p>
+                  <p className="text-lg font-semibold">
+                    ${portfolio.cash.toFixed(2)}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Account Value</p>
-                  <p className="text-lg font-semibold">${portfolio.total.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Account Value
+                  </p>
+                  <p className="text-lg font-semibold">
+                    ${portfolio.total.toFixed(2)}
+                  </p>
                 </div>
               </div>
               <div className="space-x-4 max-sm:space-x-0 flex max-sm:flex-col max-sm:space-y-2">
@@ -351,7 +394,10 @@ const Portfolio = () => {
             <DesktopPortfolio />
             {portfolio.stocks.length === 0 && (
               <div className="flex flex-col justify-center items-center py-5">
-                <p className="font-semibold">You've got no stocks! We provide $10000 as the starting amount.</p>
+                <p className="font-semibold">
+                  You've got no stocks! We provide $10000 as the starting
+                  amount.
+                </p>
                 <p>Please go ahead and use that to buy some stocks!</p>
               </div>
             )}
@@ -379,4 +425,3 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
-

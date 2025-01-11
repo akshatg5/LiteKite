@@ -34,16 +34,16 @@ export function SidebarForUSAStocks({
   const [open, setOpen] = useState(true);
   const [shares, setShares] = useState<Record<string, string>>({});
   const [price, setPrice] = useState<priceData | null>(null);
-  const [loading, setLoading] = useState<Record<string,boolean>>({});
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
 
   const handleStockSearch = async (query: string) => {
     if (!query) {
-        setStocks(topUSStocks);
-        return
+      setStocks(topUSStocks);
+      return;
     }
 
     try {
-      setLoading((prev) => ({...prev,search:true}));
+      setLoading((prev) => ({ ...prev, search: true }));
       const token = localStorage.getItem("token");
       const res = await axios.get(`${url}/ussearch?q=${query}&limit=5`, {
         headers: {
@@ -51,30 +51,32 @@ export function SidebarForUSAStocks({
           Authorization: token,
         },
       });
-      setStocks(res.data.map((item: { name: string; symbol: string }) => ({
-        name: item.name,
-        ticker: item.symbol,
-      })));
+      setStocks(
+        res.data.map((item: { name: string; symbol: string }) => ({
+          name: item.name,
+          ticker: item.symbol,
+        }))
+      );
     } catch (e) {
       console.error("Unable to get the results from the search api.");
       toast({
         title: "Unable to load the results for the search!",
-        variant : "destructive"
+        variant: "destructive",
       });
     } finally {
-      setLoading((prev) => ({...prev,search:false}));
+      setLoading((prev) => ({ ...prev, search: false }));
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-        handleStockSearch(searchQuery)
-    },300)
-    return () => clearTimeout(delayDebounceFn)
-},[searchQuery])
+      handleStockSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const handleGetPrice = async (ticker: string) => {
-    setLoading((prev) => ({...prev,[ticker] : true}));
+    setLoading((prev) => ({ ...prev, [ticker]: true }));
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
@@ -96,13 +98,13 @@ useEffect(() => {
         description: `Unable to fetch price of ${ticker}`,
       });
     } finally {
-      setLoading((prev) => ({...prev,[ticker] : false}));
+      setLoading((prev) => ({ ...prev, [ticker]: false }));
     }
   };
 
   const handleBuy = async (ticker: string) => {
     try {
-        setLoading((prev) => ({...prev,[ticker]:true}))
+      setLoading((prev) => ({ ...prev, [ticker]: true }));
       const token = localStorage.getItem("token");
       if (!parseInt(shares[ticker])) {
         toast({
@@ -125,15 +127,15 @@ useEffect(() => {
       });
       setShares((prev) => ({ ...prev, [ticker]: "" }));
       onPortfolioUpdate();
-    } catch (error : any) {
-    console.log(error.response.data)
-        toast({
-          title: "Purchase Failed",
-          description: error.response.data.error,
-          variant: "destructive",
-    })
+    } catch (error: any) {
+      console.log(error.response.data);
+      toast({
+        title: "Purchase Failed",
+        description: error.response.data.error,
+        variant: "destructive",
+      });
     } finally {
-        setLoading((prev) => ({...prev,[ticker] : false}))
+      setLoading((prev) => ({ ...prev, [ticker]: false }));
     }
   };
 
@@ -147,7 +149,9 @@ useEffect(() => {
       <Button
         onClick={toggleSidebar}
         className={`fixed top-4 z-50 p-2 rounded-full shadow-md bg-primary text-primary-foreground transition-all duration-300 ease-in-out ${
-          open ? "left-[25%] max-sm:left-[75%]" : "left-4 max-sm:left-2 max-sm:top-8"
+          open
+            ? "left-[25%] max-sm:left-[75%]"
+            : "left-4 max-sm:left-2 max-sm:top-8"
         }`}
       >
         <Menu className="h-6 w-6" />
@@ -157,8 +161,12 @@ useEffect(() => {
           open ? "w-1/4 max-sm:w-3/4" : "w-0"
         }`}
       >
-        <div className={`flex justify-center my-2 mx-1 ${open ? "" : "hidden"}`}>
-          <Link to="/" className="text-xl font-bold">LiteKite</Link>
+        <div
+          className={`flex justify-center my-2 mx-1 ${open ? "" : "hidden"}`}
+        >
+          <Link to="/" className="text-xl font-bold">
+            LiteKite
+          </Link>
         </div>
         <div
           className={`flex justify-center items-center space-x-2 my-1 mx-1 ${
@@ -202,11 +210,23 @@ useEffect(() => {
                   }
                   placeholder="Shares"
                 />
-                <Button disabled={loading[stock.ticker]} size="sm" onClick={() => handleGetPrice(stock.ticker)}>
+                <Button
+                  disabled={loading[stock.ticker]}
+                  size="sm"
+                  onClick={() => handleGetPrice(stock.ticker)}
+                >
                   {loading[stock.ticker] ? "Loading..." : "Get Price"}
                 </Button>
-                <Button disabled={loading[stock.ticker]} size="sm" onClick={() => handleBuy(stock.ticker)}>
-                  {loading[stock.ticker] ? <Loader2 className="animate-spin" /> : 'Buy' }
+                <Button
+                  disabled={loading[stock.ticker]}
+                  size="sm"
+                  onClick={() => handleBuy(stock.ticker)}
+                >
+                  {loading[stock.ticker] ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    "Buy"
+                  )}
                 </Button>
               </div>
             </div>

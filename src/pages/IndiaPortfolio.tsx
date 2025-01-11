@@ -27,6 +27,7 @@ import AnalyzePortfolioIndiaDialog from "@/components/AnalyzePortfolioDialogIndi
 import SuggestStocksIndia from "@/components/SuggestStocksIndia";
 import { SidebarForIndiaStocks } from "@/components/SidebarForIndiaStocks";
 import SellDialogForIndianStocks from "@/components/SellDialogForIndianStocks";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PortfolioStock {
   ticker: string;
@@ -239,15 +240,24 @@ export default function IndianPortfolio() {
               return (
                 <TableRow key={stock.ticker}>
                   <TableCell className="flex items-center space-x-2">
+                    <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                     <Button
                       variant={
                         selectedStock === stock.ticker ? "secondary" : "ghost"
                       }
                       onClick={() => handleStockClick(stock.ticker)}
                       className="w-full justify-start"
-                    >
+                      >
                       {stock.ticker}
                     </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Click to get the daily chart.</p>
+                        </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     <Link to={`/info/${stock.ticker}`}>
                       <Info width={20} height={20} />
                     </Link>
