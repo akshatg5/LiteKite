@@ -90,14 +90,15 @@ export default function LandingPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.8 }}
             >
+              <Link to={'/login'}>
               <Button
                 size="lg"
                 className="bg-white text-center mx-auto text-purple-600 hover:bg-gray-100 hover:text-purple-700"
-                onClick={handleGoogleSignIn}
-              >
+                >
                 {loading ? "Loading..." : "Sign up for free"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
+                  </Link>
             </motion.div>
           </motion.div>
         </div>

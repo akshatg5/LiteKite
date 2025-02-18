@@ -150,15 +150,14 @@ export function SidebarForUSAStocks({
         onClick={toggleSidebar}
         className={`fixed top-4 z-50 p-2 rounded-full shadow-md bg-primary text-primary-foreground transition-all duration-300 ease-in-out ${
           open
-            ? "left-[25%] max-sm:left-[75%]"
+            ? "left-[25%] max-sm:left-[65%]"
             : "left-4 max-sm:left-2 max-sm:top-8"
         }`}
       >
         <Menu className="h-6 w-6" />
       </Button>
       <div
-        className={`fixed left-0 top-0 h-screen bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out ${
-          open ? "w-1/4 max-sm:w-3/4" : "w-0"
+        className={`fixed left-0 top-0 h-screen bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out ${open ? "w-1/4 max-sm:w-[65%]" : "w-0"
         }`}
       >
         <div
